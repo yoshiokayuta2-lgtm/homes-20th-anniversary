@@ -1,9 +1,8 @@
-# HOMES 20周年アプリ v4.6
+# HOMES 20周年アプリ v4.8
 
-## 変更点
-- iPhoneで入力欄をタップしたときに画面が自動拡大されにくいよう、フォーム文字サイズを16px以上に修正。
-- Supabaseの `permission denied for table anniversary_posts` 対応を強化。
-- `supabase-setup.sql` をSupabase SQL Editorで再実行してください。
-
-## 注意
-この段階でSupabaseに保存されるのは投稿情報です。写真・動画の原本を会社Google Driveへ保存する接続は次工程です。
+- 投稿者名の入力欄を廃止し、初回ログイン時の名前を自動利用
+- 所属を「校舎・部署など／任意」と明確化
+- 動画は横向き（16:9）推奨の案内を追加
+- 縦向き動画を選んだ場合は投稿を止めず注意表示
+- iPhoneの入力時自動ズーム対策として入力欄16px以上を維持
+- v4.7のSupabase Storageサムネイル機能を継承

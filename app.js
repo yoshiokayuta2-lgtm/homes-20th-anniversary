@@ -1,4 +1,4 @@
-const posts = [
+let posts = [
   {title:'元非常勤からのメッセージ', author:'HOMES MEMORY', icon:'camera', alt:false, image:'assets/memories/memory-01.jpeg', tag:'MEMORY'},
   {title:'あのシーンを再現してみた', author:'HOMES ARCHIVE', icon:'camera', alt:false, image:'assets/memories/memory-03.jpeg', tag:'ARCHIVE'},
   {title:'○○校に来ました', author:'HOMES MEMORY', icon:'people', alt:false, image:'assets/memories/memory-05.jpeg', tag:'MEMORY'},
@@ -106,6 +106,99 @@ const SB_CONFIG=window.HOMES_SUPABASE||{};
 const APP_CONFIG=window.HOMES_APP_CONFIG||{};
 const SUPABASE_READY=Boolean(SB_CONFIG.url && SB_CONFIG.publishableKey && window.supabase?.createClient);
 const sb=SUPABASE_READY ? window.supabase.createClient(SB_CONFIG.url,SB_CONFIG.publishableKey) : null;
+
+async function loadSupabasePosts(){
+  if(!sb) return;
+  const {data,error}=await sb.from('anniversary_posts')
+    .select('id,title,author_name,campus,category,preview_url,created_at')
+    .order('created_at',{ascending:false})
+    .limit(20);
+  if(error){ console.warn('投稿一覧の取得に失敗',error); return; }
+  if(!data?.length) return;
+  const remote=data.map(row=>({
+    id:row.id,
+    title:row.title||'無題',
+    author:row.author_name||row.campus||'HOMES',
+    icon:'video',
+    alt:false,
+    image:row.preview_url||null,
+    tag:'NEW'
+  }));
+  const remoteIds=new Set(remote.map(x=>x.id));
+  posts=[...remote,...posts.filter(x=>!x.id||!remoteIds.has(x.id))];
+  renderPosts();
+  startAutoScroll();
+}
+
+function drawCover(ctx,source,sw,sh,dw=640,dh=420){
+  const scale=Math.max(dw/sw,dh/sh);
+  const rw=sw*scale, rh=sh*scale;
+  const dx=(dw-rw)/2, dy=(dh-rh)/2;
+  ctx.clearRect(0,0,dw,dh);
+  ctx.drawImage(source,dx,dy,rw,rh);
+}
+
+function canvasToJpeg(canvas,quality=.82){
+  return new Promise((resolve,reject)=>canvas.toBlob(
+    blob=>blob?resolve(blob):reject(new Error('サムネイルを作成できませんでした')),
+    'image/jpeg',quality
+  ));
+}
+
+async function makeImageThumbnail(file){
+  const url=URL.createObjectURL(file);
+  try{
+    const img=new Image();
+    img.decoding='async';
+    img.src=url;
+    await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error('画像を読み込めませんでした'));});
+    const canvas=document.createElement('canvas');
+    canvas.width=640; canvas.height=420;
+    const ctx=canvas.getContext('2d');
+    drawCover(ctx,img,img.naturalWidth,img.naturalHeight);
+    return await canvasToJpeg(canvas);
+  }finally{ URL.revokeObjectURL(url); }
+}
+
+async function makeVideoThumbnail(file){
+  const url=URL.createObjectURL(file);
+  try{
+    const video=document.createElement('video');
+    video.preload='metadata';
+    video.muted=true;
+    video.playsInline=true;
+    video.src=url;
+    await new Promise((resolve,reject)=>{
+      video.onloadedmetadata=resolve;
+      video.onerror=()=>reject(new Error('動画を読み込めませんでした'));
+      video.load();
+    });
+    const target=Math.min(Math.max((Number(video.duration)||1)*0.15,0.1),2);
+    await new Promise((resolve,reject)=>{
+      const done=()=>{video.removeEventListener('seeked',done);resolve();};
+      video.addEventListener('seeked',done,{once:true});
+      video.onerror=()=>reject(new Error('動画フレームを取得できませんでした'));
+      try{ video.currentTime=target; }catch(_e){ resolve(); }
+    });
+    const canvas=document.createElement('canvas');
+    canvas.width=640; canvas.height=420;
+    const ctx=canvas.getContext('2d');
+    drawCover(ctx,video,video.videoWidth||640,video.videoHeight||420);
+    return await canvasToJpeg(canvas);
+  }finally{ URL.revokeObjectURL(url); }
+}
+
+async function createAndUploadPreview(file){
+  if(!sb) return null;
+  const blob=file.type.startsWith('image/') ? await makeImageThumbnail(file) : await makeVideoThumbnail(file);
+  const key=`previews/${Date.now()}-${crypto.randomUUID?.()||Math.random().toString(36).slice(2)}.jpg`;
+  const {error}=await sb.storage.from('anniversary-previews').upload(key,blob,{contentType:'image/jpeg',upsert:false,cacheControl:'31536000'});
+  if(error) throw error;
+  const {data}=sb.storage.from('anniversary-previews').getPublicUrl(key);
+  return data?.publicUrl||null;
+}
+
+loadSupabasePosts();
 const STAFF_LOGIN_KEY='homes20StaffLogin';
 const STAFF_CODE=String(APP_CONFIG.staffCode||'2027');
 const LOGIN_DAYS=Number(APP_CONFIG.loginDays||180);
@@ -238,6 +331,11 @@ function initUpload(){
   const saveBtn=document.getElementById('saveVideoBtn');
   let selectedFile=null;
   let selectedObjectUrl='';
+  const loginForForm=currentStaff||loadStaffLogin();
+  const postingAs=document.getElementById('postingAs');
+  if(postingAs && loginForForm?.name){
+    postingAs.innerHTML=`<span>投稿者</span><b>${escapeHtml(loginForForm.name)}</b><small>ログイン時のお名前を自動で使います</small>`;
+  }
 
   input.addEventListener('change',()=>{
     selectedFile=input.files?.[0]||null;
@@ -253,7 +351,8 @@ function initUpload(){
       const video=document.getElementById('previewVideo');
       video?.addEventListener('loadedmetadata',()=>{
         const info=previewArea.querySelector('.video-fileinfo');
-        info.innerHTML=`<b>${escapeHtml(selectedFile.name)}</b><br>${readableBytes(selectedFile.size)} ・ ${fmtDuration(video.duration)} ・ ${video.videoWidth}×${video.videoHeight}px`;
+        const portrait=video.videoHeight>video.videoWidth;
+        info.innerHTML=`<b>${escapeHtml(selectedFile.name)}</b><br>${readableBytes(selectedFile.size)} ・ ${fmtDuration(video.duration)} ・ ${video.videoWidth}×${video.videoHeight}px${portrait?'<div class="orientation-warning">この動画は縦向きです。投稿はできますが、次回は横向き撮影がおすすめです。</div>':''}`;
       });
     }
   });
@@ -275,16 +374,24 @@ function initUpload(){
     }
 
     const t=document.getElementById('videoTitle').value.trim()||(selectedFile.type.startsWith('image/')?'無題の写真':'無題の動画');
-    const a=document.getElementById('videoAuthor').value.trim()||login.name;
+    const a=login.name;
     const campus=document.getElementById('videoCampus').value.trim();
     const category=document.getElementById('videoCategory').value;
     const finalCandidate=document.getElementById('movieCandidate').checked;
 
     saveBtn.disabled=true;
-    saveBtn.textContent='Supabaseに保存中…';
+    saveBtn.textContent='サムネイルを作成中…';
     previewArea.querySelectorAll('.upload-status').forEach(el=>el.remove());
 
-    const {error}=await sb.from('anniversary_posts').insert({
+    let previewUrl=null;
+    try{
+      previewUrl=await createAndUploadPreview(selectedFile);
+    }catch(previewError){
+      console.warn('サムネイル作成/保存に失敗',previewError);
+    }
+
+    saveBtn.textContent='投稿情報を保存中…';
+    const {data:inserted,error}=await sb.from('anniversary_posts').insert({
       user_id:null,
       email:null,
       title:t,
@@ -292,10 +399,10 @@ function initUpload(){
       campus,
       category,
       drive_file_id:null,
-      preview_url:null,
+      preview_url:previewUrl,
       is_public:false,
       final_movie_candidate:finalCandidate
-    });
+    }).select('id').single();
 
     saveBtn.disabled=false;
     saveBtn.textContent='投稿する';
@@ -306,11 +413,11 @@ function initUpload(){
       return;
     }
 
-    posts.unshift({title:t,author:a,icon:selectedFile.type.startsWith('image/')?'camera':'video',alt:true,tag:'NEW'});
+    posts.unshift({id:inserted?.id,title:t,author:a,icon:selectedFile.type.startsWith('image/')?'camera':'video',alt:true,image:previewUrl,tag:'NEW'});
     renderPosts();
     startAutoScroll();
-    previewArea.insertAdjacentHTML('beforeend','<small class="upload-status success">Supabaseに投稿情報を保存しました。原本のGoogle Drive保存は次の接続で追加します。</small>');
-    setTimeout(()=>dialog.close(),900);
+    previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status success">投稿できました。${previewUrl?'サムネイルも保存しました。':'サムネイルだけ作成できなかったため仮表示です。'} 原本のGoogle Drive保存は次の接続で追加します。</small>`);
+    setTimeout(()=>dialog.close(),1100);
   });
 }
 

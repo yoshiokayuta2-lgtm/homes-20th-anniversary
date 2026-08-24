@@ -40,3 +40,7 @@
   input, select, textarea { font-size:16px !important; }
   .auth-label input { font-size:16px !important; }
 }
+
+/* v4.8 upload UX */
+.landscape-tip{margin-bottom:14px;padding:14px 16px;border:1px solid #eadbd5;background:#fff9f6;border-radius:18px;display:grid;grid-template-columns:auto 1fr;gap:3px 10px;align-items:center}.landscape-tip span{grid-row:1/3;font-size:9px;letter-spacing:.16em;font-weight:800;color:var(--red);border:1px solid #efc9c4;border-radius:999px;padding:6px 8px}.landscape-tip b{font-size:14px;line-height:1.45}.landscape-tip small{font-size:10px;color:#8f817b;line-height:1.45}.posting-as{margin-top:14px;padding:12px 15px;border-radius:16px;background:#fff;border:1px solid #e9dfd9;display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center}.posting-as span{font-size:10px;color:#9b8d86}.posting-as b{font-size:15px}.posting-as small{grid-column:2;font-size:9px;color:#aaa09a;margin-top:2px}.orientation-warning{margin-top:8px;padding:8px 10px;border-radius:10px;background:#fff2dc;color:#8b5c16;font-size:10px;line-height:1.5}.form-grid input,.form-grid select{font-size:16px!important}.form-grid label small{font-size:10px;color:#9b8d86;font-weight:500}.auth-card input,.auth-card select,input,select,textarea{font-size:16px}
+@media(max-width:560px){.landscape-tip{grid-template-columns:1fr}.landscape-tip span{grid-row:auto;width:max-content}.posting-as{margin-top:12px}}

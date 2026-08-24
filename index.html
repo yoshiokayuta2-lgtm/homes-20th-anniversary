@@ -137,16 +137,17 @@
 
   <template id="uploadTemplate">
     <section class="upload-panel">
+      <div class="landscape-tip"><span>VIDEO</span><b>動画は横向き（16:9）での撮影がおすすめです</b><small>20周年パーティーのスクリーンで見やすくなります。</small></div>
       <label class="drop-zone" for="videoInput">
         <input type="file" id="videoInput" accept="image/*,video/*" hidden>
         <div class="drop-icon"><svg><use href="#i-plus"/></svg></div>
         <b>写真・動画を選択</b>
       </label>
       <div id="videoPreviewArea"></div>
+      <div class="posting-as" id="postingAs"></div>
       <div class="form-grid">
         <label>タイトル<input id="videoTitle" placeholder="タイトル"></label>
-        <label>投稿者<input id="videoAuthor" placeholder="名前"></label>
-        <label>所属<input id="videoCampus" placeholder="所属"></label>
+        <label>所属 <small>（任意）</small><input id="videoCampus" placeholder="例：岐阜本部校／本部／○○部"></label>
         <label>カテゴリ<select id="videoCategory"><option>30秒で語るHOMES</option><option>パロディ動画</option><option>川瀬社長自転車の旅</option><option>昔の写真を再現</option><option>未来へのメッセージ</option></select></label>
       </div>
       <label class="check-row"><input id="movieCandidate" type="checkbox" checked> 20周年ムービー候補</label>

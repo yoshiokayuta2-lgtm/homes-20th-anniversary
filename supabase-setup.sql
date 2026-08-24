@@ -1,6 +1,5 @@
--- HOMES 20周年アプリ v4.6: シンプル社員ログイン版
--- Supabase SQL Editor でこのSQLを1回実行してください。
--- メール認証は使わず、アプリ側の「お名前＋社員共通コード」で入ります。
+-- HOMES 20周年アプリ v4.7
+-- 1回実行してください。投稿情報 + 軽量サムネイル用 Storage の設定です。
 
 create table if not exists public.anniversary_posts (
   id uuid primary key default gen_random_uuid(),
@@ -21,19 +20,42 @@ alter table public.anniversary_posts alter column user_id drop not null;
 alter table public.anniversary_posts alter column email drop not null;
 alter table public.anniversary_posts enable row level security;
 
--- 旧ポリシーを整理
 drop policy if exists "homes staff can read posts" on public.anniversary_posts;
 drop policy if exists "homes staff can create own posts" on public.anniversary_posts;
 drop policy if exists "homes staff can update own posts" on public.anniversary_posts;
 drop policy if exists "anniversary app can create posts" on public.anniversary_posts;
+drop policy if exists "anniversary app can read posts" on public.anniversary_posts;
 
--- GitHub Pages上の公開アプリは publishable key では anon ロールとして接続するため、
--- 非公開状態の投稿情報に限って INSERT を許可する。
 create policy "anniversary app can create posts"
 on public.anniversary_posts
 for insert
 to anon
 with check (is_public = false);
 
--- 念のため anon にテーブル INSERT 権限を付与
-grant insert on table public.anniversary_posts to anon;
+create policy "anniversary app can read posts"
+on public.anniversary_posts
+for select
+to anon
+using (true);
+
+grant insert, select on table public.anniversary_posts to anon;
+
+-- 軽量プレビュー専用。原本写真・動画はここには置かず、後で会社Google Driveへ保存します。
+insert into storage.buckets (id, name, public)
+values ('anniversary-previews', 'anniversary-previews', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists "anniversary previews are public" on storage.objects;
+drop policy if exists "anniversary app can upload previews" on storage.objects;
+
+create policy "anniversary previews are public"
+on storage.objects
+for select
+to public
+using (bucket_id = 'anniversary-previews');
+
+create policy "anniversary app can upload previews"
+on storage.objects
+for insert
+to anon
+with check (bucket_id = 'anniversary-previews');
