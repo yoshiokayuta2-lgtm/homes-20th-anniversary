@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KENJI MODE | HOMES 20th Anniversary</title>
+<style>
+:root{--navy:#07355f;--navy2:#0b4777;--navy3:#0d2f50;--red:#ef233c;--red2:#d9162f;--blue:#1686e8;--green:#21b36b;--ink:#0c3155;--muted:#6f8499;--line:#dce6ef;--bg:#eef4f8;--white:#fff;--shadow:0 12px 30px rgba(16,50,82,.12)}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:linear-gradient(#edf4f8,#f8fbfd);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}.app{max-width:780px;margin:auto;min-height:100vh;padding-bottom:42px}.topbar{height:64px;background:linear-gradient(90deg,#123f69,#082e52);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 8px 24px rgba(7,35,61,.18)}.brand{display:flex;align-items:baseline;gap:16px}.brand strong{font-size:26px;font-style:italic;letter-spacing:.02em}.brand span{font-size:11px;letter-spacing:.08em;opacity:.9}.back{color:#fff;text-decoration:none;font-size:12px;display:flex;align-items:center;gap:8px}.back b{font-size:24px;font-weight:400;line-height:1}
+.hero{position:relative;min-height:165px;padding:28px 28px 18px;background:linear-gradient(180deg,#f7fbff 0%,#eef4f7 100%);overflow:hidden}.hero:after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:#dbe5ec}.hero-copy{position:relative;z-index:2;max-width:70%}.hero-kicker{font-size:10px;font-weight:800;letter-spacing:.17em;color:var(--red);margin-bottom:7px}.hero-title{margin:0;font-size:52px;line-height:.95;font-weight:900;letter-spacing:-.045em;color:#062f57;font-style:italic}.hero-title .mode{font-weight:400;letter-spacing:-.04em;margin-left:10px;color:#0c3b66}.hero-sub{margin:12px 0 0;font-size:14px;letter-spacing:.18em;color:#315b7c}.bike{position:absolute;right:20px;top:24px;width:185px;max-width:31%;filter:drop-shadow(0 7px 10px rgba(20,38,52,.16));object-fit:contain}
+.content{padding:0 18px 30px}.status-grid{margin-top:-1px;background:#fff;border-radius:0 0 24px 24px;box-shadow:var(--shadow);display:grid;grid-template-columns:1.1fr 1.35fr 1fr;overflow:hidden}.status-item{padding:20px 18px;display:flex;gap:13px;align-items:center;min-width:0}.status-item+ .status-item{border-left:1px solid var(--line)}.status-icon{width:42px;height:42px;border-radius:14px;background:#edf5fb;display:grid;place-items:center;flex:none;font-size:22px}.status-label{font-size:10px;color:var(--muted);font-weight:700}.status-value{font-size:20px;font-weight:800;margin-top:2px;white-space:nowrap}.status-value small{font-size:11px;font-weight:600}.running{display:inline-flex;align-items:center;gap:6px;margin-top:5px;padding:5px 9px;background:#f2f7fa;border-radius:99px;font-size:10px;font-weight:700;color:#42627c}.running i{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.next-card{margin-top:18px;background:linear-gradient(135deg,#0b4777,#07335d);color:white;border-radius:24px;padding:22px 24px;box-shadow:0 18px 36px rgba(4,47,84,.18)}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;opacity:.8;margin-bottom:12px}.next-main{display:grid;grid-template-columns:minmax(0,1.35fr) .75fr 150px;gap:18px;align-items:center}.next-campus{display:flex;align-items:center;gap:16px;min-width:0}.campus-thumb{position:relative;width:110px;height:82px;border-radius:18px;border:1px solid rgba(255,255,255,.55);background:linear-gradient(145deg,#d7e8f4,#9dc1db);display:grid;place-items:center;color:#0d3a63;font-weight:900;font-size:26px;flex:none;overflow:hidden;box-shadow:0 16px 26px rgba(6,31,56,.22)}.campus-thumb:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(7,30,53,.18))}.next-name{font-size:25px;font-weight:800}.next-place{font-size:11px;opacity:.88;margin-top:5px}.next-place span{margin-right:5px}.route-chip{display:inline-flex;margin-top:10px;background:rgba(255,255,255,.96);color:#0c3e68;border-radius:99px;padding:7px 11px;font-size:10px;font-weight:800;box-shadow:0 8px 18px rgba(4,47,84,.12)}.next-meta{border-left:1px solid rgba(255,255,255,.25);padding-left:18px}.meta-row{margin:7px 0}.meta-row span{display:block;font-size:10px;opacity:.8}.meta-row b{font-size:25px}.arrive-main{border:1px solid rgba(255,255,255,.65);background:linear-gradient(135deg,#ff334b,#d9162f);color:#fff;border-radius:18px;min-height:72px;padding:12px 16px;font-size:21px;font-weight:900;cursor:pointer;box-shadow:0 12px 22px rgba(239,35,60,.24)}
+.progress-card{margin-top:16px;background:#fff;border:1px solid #e0e9f0;border-radius:22px;padding:20px 22px;box-shadow:0 8px 24px rgba(17,55,88,.07)}.progress-line{display:grid;grid-template-columns:repeat(5,1fr);position:relative}.progress-line:before{content:'';position:absolute;left:8%;right:8%;top:17px;height:4px;background:#dbe3ea;border-radius:99px}.progress-line:after{content:'';position:absolute;left:8%;width:42%;top:17px;height:4px;background:var(--blue);border-radius:99px}.step{position:relative;z-index:2;text-align:center;min-width:0}.pin{width:34px;height:34px;border-radius:50%;margin:auto;display:grid;place-items:center;background:#c8d0d7;color:white;border:3px solid white;box-shadow:0 0 0 1px #d6e0e8;font-size:14px;font-weight:900}.step.done .pin{background:var(--blue)}.step.current .pin{background:var(--red);transform:scale(1.12);box-shadow:0 0 0 6px rgba(239,35,60,.12)}.step b{display:block;font-size:11px;margin-top:8px;white-space:nowrap}.step small{display:block;font-size:9px;color:var(--muted);margin-top:3px}.step.current small{color:var(--red);font-weight:800}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:24px 4px 11px}.section-head h2{font-size:19px;margin:0}.section-head h2:before{content:'●';color:var(--navy);margin-right:9px;font-size:14px}.map-btn{border:1px solid #cbd9e5;background:#fff;border-radius:99px;padding:9px 13px;font-size:11px;font-weight:800;color:var(--navy);cursor:pointer}.route-list{display:grid;gap:10px}.route-item{display:grid;grid-template-columns:36px 68px minmax(0,1fr) 120px 24px;gap:13px;align-items:center;background:#fff;border:1px solid #e1e9ef;border-radius:18px;padding:12px 14px;box-shadow:0 8px 18px rgba(10,50,85,.05)}.route-state{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#fff;border:3px solid #bbc7d1;color:#fff;font-weight:900;font-size:12px}.route-item.done .route-state{background:var(--blue);border-color:var(--blue)}.route-item.current .route-state{background:var(--red);border-color:var(--red)}.mini-thumb{position:relative;width:68px;height:52px;border-radius:14px;background:linear-gradient(145deg,#e2eef5,#a6c8df);display:grid;place-items:center;color:#0e4778;font-weight:900;overflow:hidden;border:1px solid #d7e3ed;box-shadow:0 10px 18px rgba(10,50,85,.09)}.mini-thumb:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(8,38,67,.12))}.route-name{min-width:0}.route-name b{font-size:14px}.route-name small{display:block;font-size:9px;color:var(--muted);margin-top:4px}.route-time{font-size:11px;color:var(--muted)}.route-action{border:0;border-radius:99px;padding:9px 12px;background:#e3e9ee;color:#264b6a;font-size:10px;font-weight:800}.route-item.current .route-action{background:#ffe3e7;color:var(--red)}.route-item.future .route-action.primary{background:var(--red);color:#fff;cursor:pointer;box-shadow:0 8px 14px rgba(239,35,60,.16)}.chev{color:#8fa1af;font-size:20px}
+.record{margin-top:24px}.record h2{font-size:18px;margin:0 0 12px}.record-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.record-btn{min-height:88px;border-radius:16px;background:#fff;border:1px solid #dce6ee;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;color:var(--navy);font-weight:800;cursor:pointer}.record-btn .ico{font-size:24px}.record-btn small{font-size:9px;color:var(--muted);font-weight:500}.record-btn.photo{border-color:#ff9aa6;background:#fff5f6;color:#e52b42}.record-btn.video{border-color:#85b8ff;background:#f4f8ff;color:#1767c5}.record-btn.msg{border-color:#88d9aa;background:#f4fff8;color:#07924b}.toast{position:sticky;bottom:12px;margin:16px auto 0;max-width:420px;background:#071f36;color:#fff;border-radius:14px;padding:12px 16px;font-size:11px;text-align:center;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:none}
+@media(max-width:640px){.topbar{padding:0 14px}.brand strong{font-size:21px}.brand span{font-size:9px}.hero{min-height:144px;padding:22px 18px 16px}.hero-title{font-size:39px}.hero-sub{font-size:11px}.bike{right:10px;top:28px;width:145px;max-width:35%}.content{padding-left:10px;padding-right:10px}.status-grid{grid-template-columns:1fr 1fr}.status-item:nth-child(3){grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}.next-main{grid-template-columns:1fr}.next-meta{border-left:0;border-top:1px solid rgba(255,255,255,.25);padding:12px 0 0}.arrive-main{width:100%}.progress-card{overflow-x:auto}.progress-line{min-width:520px}.route-item{grid-template-columns:32px 54px minmax(0,1fr) 80px 18px;gap:8px;padding:9px}.mini-thumb{width:54px;height:44px}.route-time{font-size:9px}.route-action{padding:8px 7px}.record-grid{grid-template-columns:1fr}.record-btn{min-height:70px}.campus-thumb{width:76px;height:64px}.next-name{font-size:22px}}
+
+    .demo-reset-btn{
+      border:1px solid rgba(255,255,255,.28);
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      border-radius:999px;
+      padding:9px 14px;
+      font:inherit;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.02em;
+      cursor:pointer;
+      backdrop-filter:blur(8px);
+    }
+    .demo-reset-btn:hover{background:rgba(255,255,255,.16)}
+    .demo-reset-btn:focus-visible{outline:3px solid rgba(255,255,255,.35);outline-offset:2px}
+
+
+.campus-thumb img,.mini-thumb img{position:relative;z-index:0;width:100%;height:100%;object-fit:cover;display:block}
+.campus-thumb{background:#dfeaf3}
+.mini-thumb{overflow:hidden;background:#dfeaf3}
+.next-place{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.route-name small{display:flex;align-items:center;gap:4px}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><strong>HOMES</strong><span>20th ANNIVERSARY</span></div>
+    <a class="back" href="index.html"><b>←</b> 一般アプリに戻る</a>
+  
+      <button type="button" id="resetDemo" class="demo-reset-btn">デモをリセット</button>
+</header>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="hero-kicker">20TH ANNIVERSARY SPECIAL RIDE</div>
+      <h1 class="hero-title">KENJI <span class="mode">MODE</span></h1>
+      <p class="hero-sub">走って、会って、つないでいく。</p>
+    </div>
+    <img class="bike" src="assets/kenji-bike.png" alt="ロードバイク">
+  </section>
+
+  <main class="content">
+    <section class="status-grid">
+      <div class="status-item"><div class="status-icon">▣</div><div><div class="status-label">DAY 2</div><div class="status-value">2026.8.23 <small>(Sun)</small></div></div></div>
+      <div class="status-item"><div class="status-icon">●</div><div><div class="status-label">現在地</div><div class="status-value" id="currentCampus">神戸校 付近</div><div class="running"><i></i>走行中</div></div></div>
+      <div class="status-item"><div class="status-icon">⚑</div><div><div class="status-label">訪問済み</div><div class="status-value"><span id="visitedCount">3</span> / 5 <small>校舎</small></div></div></div>
+    </section>
+
+    <section class="next-card">
+      <div class="eyebrow">次の目的地</div>
+      <div class="next-main">
+        <div class="next-campus">
+          <div class="campus-thumb" id="nextCampusThumb"><img src="assets/campuses/ogaki-hombu.png" alt="大垣本部校の写真"></div>
+          <div><div class="next-name" id="nextCampusName">大垣本部校</div><div class="next-place" id="nextCampusPlace"><span>●</span>岐阜県大垣市</div><span class="route-chip">◇ ルートを確認</span></div>
+        </div>
+        <div class="next-meta"><div class="meta-row"><span>距離</span><b>12.4 <small>km</small></b></div><div class="meta-row"><span>到着目安</span><b style="font-size:18px">約45分</b></div></div>
+        <button class="arrive-main" id="nextArriveBtn" type="button">● 到着　›</button>
+      </div>
+    </section>
+
+    <section class="progress-card"><div class="progress-line" id="progressLine"></div></section>
+
+    <div class="section-head"><h2>本日のルート</h2><button class="map-btn" type="button" id="mapBtn">▱ マップを開く ↗</button></div>
+    <section class="route-list" id="routeList"></section>
+
+    <section class="record">
+      <h2>▣ 記録を残す</h2>
+      <div class="record-grid">
+        <button class="record-btn photo" type="button" data-record="写真"><span class="ico">▣</span><span>写真を投稿</span><small>到着時の写真をアップ</small></button>
+        <button class="record-btn video" type="button" data-record="動画"><span class="ico">●</span><span>動画を投稿</span><small>短い動画で記録</small></button>
+        <button class="record-btn msg" type="button" data-record="ひとこと"><span class="ico">•••</span><span>ひとことを投稿</span><small>メッセージを残す</small></button>
+      </div>
+    </section>
+    <div class="toast" id="toast" role="status"></div>
+  </main>
+</div>
+<script>
+const KEY='homes20RideState';
+const campuses=[
+  {name:'岐阜本部校',day:1,time:'09:15',place:'岐阜市橋本町',displayPlace:'岐阜県岐阜市',photo:'assets/campuses/gifu-hombu.png'},
+  {name:'岐南校',day:1,time:'12:40',place:'羽島郡岐南町',displayPlace:'岐阜県羽島郡岐南町',photo:'assets/campuses/ginan.png'},
+  {name:'神戸校',day:2,time:'14:32',place:'安八郡神戸町',displayPlace:'岐阜県安八郡神戸町',photo:'assets/campuses/goudo.png'},
+  {name:'大垣本部校',day:2,time:'',place:'大垣市',displayPlace:'岐阜県大垣市',photo:'assets/campuses/ogaki-hombu.png'},
+  {name:'穂積校',day:2,time:'',place:'瑞穂市',displayPlace:'岐阜県瑞穂市',photo:'assets/campuses/hozumi.png'}
+];
+const defaultState={current:'神戸校',visited:{'岐阜本部校':'09:15','岐南校':'12:40','神戸校':'14:32'},updatedAt:'14:32'};
+let channel=null;try{channel=new BroadcastChannel('homes20-ride')}catch(e){}
+function cloneDefault(){return JSON.parse(JSON.stringify(defaultState))}
+function getState(){try{return JSON.parse(localStorage.getItem(KEY))||cloneDefault()}catch(e){return cloneDefault()}}
+function saveState(state){localStorage.setItem(KEY,JSON.stringify(state));if(channel)channel.postMessage({type:'ride-update'});render()}
+function nowTime(){return new Intl.DateTimeFormat('ja-JP',{hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date())}
+function arrive(name){const state=getState();const t=nowTime();state.current=name;state.visited=state.visited||{};state.visited[name]=t;state.updatedAt=t;saveState(state);toast(name+' に到着として更新しました')}
+function nextUnvisited(state){return campuses.find(c=>!state.visited?.[c.name])||campuses[campuses.length-1]}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
+function thumbHtml(campus,altClass=''){return `<img src="${campus.photo}" alt="${escapeHtml(campus.name)}の校舎写真" class="${altClass}">`}
+function render(){
+  const state=getState();
+  const visited=state.visited||{};
+  document.getElementById('visitedCount').textContent=Object.keys(visited).length;
+  document.getElementById('currentCampus').textContent=(state.current||'—')+' 付近';
+  const next=nextUnvisited(state);
+  document.getElementById('nextCampusName').textContent=next.name;
+  document.getElementById('nextCampusPlace').innerHTML=`<span>●</span>${next.displayPlace||next.place}`;
+  document.getElementById('nextCampusThumb').innerHTML=thumbHtml(next);
+  const nextBtn=document.getElementById('nextArriveBtn');nextBtn.onclick=()=>arrive(next.name);
+  document.getElementById('progressLine').innerHTML=campuses.map(c=>{const done=!!visited[c.name],current=state.current===c.name;return `<div class="step ${done?'done':''} ${current?'current':''}"><div class="pin">${done?'✓':'●'}</div><b>${c.name}</b><small>${done?(visited[c.name]||c.time):(current?'現在地':'未訪問')}</small></div>`}).join('');
+  document.getElementById('routeList').innerHTML=campuses.map(c=>{
+    const done=!!visited[c.name],current=state.current===c.name;
+    const klass=current?'current':done?'done':'future';
+    const label=current?'現在地':done?'到着済み':c.name===next.name?'到着':'未訪問';
+    return `<article class="route-item ${klass}"><div class="route-state">${done?'✓':'○'}</div><div class="mini-thumb">${thumbHtml(c,'campus-mini-photo')}</div><div class="route-name"><b>${c.name}</b><small>● ${c.place}</small></div><div class="route-time">${done?'◷ '+visited[c.name]:'-'}</div><button type="button" class="route-action ${c.name===next.name?'primary':''}" data-campus="${c.name}" ${(!done && c.name!==next.name)?'disabled':''}>${label}</button><div class="chev">›</div></article>`
+  }).join('');
+  document.querySelectorAll('[data-campus]').forEach(btn=>{if(!btn.disabled)btn.addEventListener('click',()=>arrive(btn.dataset.campus))});
+}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2200)}
+document.getElementById('mapBtn').addEventListener('click',()=>toast('本番では現在地と訪問校舎をマップ表示します'));
+document.querySelectorAll('[data-record]').forEach(btn=>btn.addEventListener('click',()=>toast(btn.dataset.record+'投稿画面へつなげます')));
+if(channel)channel.onmessage=()=>render();
+window.addEventListener('storage',e=>{if(e.key===KEY)render()});
+render();
+
+    const resetDemoBtn = document.getElementById('resetDemo');
+    if (resetDemoBtn) {
+      resetDemoBtn.addEventListener('click', () => {
+        const ok = window.confirm('KENJI MODEのデモ状態を初期状態に戻しますか？');
+        if (!ok) return;
+        localStorage.removeItem('homesRideState');
+        localStorage.removeItem('homes_ride_state');
+        localStorage.removeItem('kenjiRideState');
+        localStorage.removeItem('rideState');
+        location.reload();
+      });
+    }
+
+</script>
+</body>
+</html>

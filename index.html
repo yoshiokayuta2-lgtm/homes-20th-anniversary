@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>HOMES EDUCATION 20th Anniversary</title>
+  <meta name="theme-color" content="#d60012" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="HOMES 20th" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <svg class="svg-sprite" aria-hidden="true">
+    <defs>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.5 12 4.6l8 6.9v8.1H15v-5.2h-6v5.2H4z"/></symbol>
+      <symbol id="i-video" viewBox="0 0 24 24"><path d="M5.3 6.6c3.5-.4 7-.4 10.4 0 .7.1 1.2.7 1.2 1.4v8.4c0 .7-.5 1.3-1.2 1.4-3.5.4-7 .4-10.4 0-.7-.1-1.2-.7-1.2-1.4V8c0-.7.5-1.3 1.2-1.4Z"/><path d="m17 10.2 3.4-2v7.6L17 13.7z"/></symbol>
+      <symbol id="i-bike" viewBox="0 0 24 24"><circle cx="6" cy="17" r="3.1"/><circle cx="18" cy="17" r="3.1"/><path d="m8.5 8.4 3 8.6M6 17l4.8-6.5h4.4l2.8 6.5M8.7 8.4h3.2M15.5 6.6h2.8"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 4.4c.7 2.1 1.5 3.6 2.4 4.5 1 .9 2.5 1.6 4.6 2.1-2 .7-3.5 1.5-4.4 2.4-.9 1-1.7 2.5-2.3 4.7-.7-2.1-1.5-3.7-2.4-4.6-.9-.9-2.5-1.7-4.6-2.3 2.1-.6 3.6-1.4 4.6-2.3.9-.9 1.6-2.4 2.1-4.5Z"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><path d="M12.1 3.8c4.8 0 8.3 3.4 8.3 8.2 0 4.7-3.4 8.2-8.2 8.2-4.7 0-8.3-3.5-8.3-8.2 0-4.8 3.4-8.2 8.2-8.2Z"/><path d="M12 7.6v4.8l3.3 2"/></symbol>
+      <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4.6 7.4c4.9-.5 9.9-.5 14.8 0 .8.1 1.4.7 1.4 1.5v8.5c0 .8-.6 1.5-1.4 1.5-4.9.5-9.9.5-14.8 0-.8-.1-1.4-.7-1.4-1.5V8.9c0-.8.6-1.4 1.4-1.5Z"/><path d="m8.4 7.2 1.3-2h4.7l1.2 2"/><circle cx="12" cy="13.1" r="3.1"/></symbol>
+      <symbol id="i-image" viewBox="0 0 24 24"><path d="M4.2 5.4c5.2-.4 10.4-.4 15.6 0 .6 0 1 .5 1 1.1v11.3c0 .6-.4 1.1-1 1.1-5.2.4-10.4.4-15.6 0-.6 0-1-.5-1-1.1V6.5c0-.6.4-1.1 1-1.1Z"/><circle cx="8.3" cy="9.1" r="1.2"/><path d="m5.4 17 4.1-4.2 3.2 3 2.2-2.1 3.8 3.5"/></symbol>
+      <symbol id="i-people" viewBox="0 0 24 24"><path d="M8.5 11.4c2.1 0 3.6-1.5 3.6-3.5 0-2.1-1.5-3.6-3.6-3.6S5 5.8 5 7.9c0 2 1.5 3.5 3.5 3.5Z"/><path d="M2.8 20c.5-4.5 2.3-6.8 5.7-6.8s5.3 2.3 5.8 6.8M15.4 12.5c3 .2 4.8 2.2 5.2 6"/></symbol>
+      <symbol id="i-paper" viewBox="0 0 24 24"><path d="M6 3.8c3.4-.3 6.8-.3 10.2 0l2.8 3.1v13.2c-4.3.3-8.7.3-13 0Z"/><path d="M15.8 3.9v3.6H19M8.5 12h7M8.5 15.2h5"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.2v13.6M5.2 12h13.6"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 6.5 8.5 5.5L9 17.5Z"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21c-1.7-2.1-5.9-6.4-5.9-11 0-3.4 2.5-6 5.9-6 3.3 0 5.9 2.6 5.9 6 0 4.6-4.2 8.9-5.9 11Z"/><circle cx="12" cy="10" r="2"/></symbol><symbol id="i-survey" viewBox="0 0 24 24"><path d="M7 4.5h10v15H7z"/><path d="M9 8h6M9 12h4M9 16h6"/><path d="m15.2 11.2 1.1 1.2 2.2-2.7"/></symbol>
+    </defs>
+  </svg>
+
+  <section id="opening" class="opening" aria-label="20周年オープニング">
+    <div id="openingIntro" class="opening-intro" aria-live="polite">
+      <div class="opening-intro-copy">
+        <p id="openingLine1" class="opening-line">わたしから、あなたへ。</p>
+        <p id="openingLine2" class="opening-line">わたしたいものがある。</p>
+      </div>
+      <div id="openingLoading" class="opening-loading">LOADING <span id="loadingPercent">98</span>%</div>
+    </div>
+    <div id="openingPoster" class="opening-poster" aria-hidden="true">
+      <div class="opening-master-wrap">
+        <img src="assets/opening-master-hq.png" alt="HOMES EDUCATION 20th Anniversary 一人ひとりの一歩が、20周年をつくる。" class="opening-master-image">
+        <button id="enterApp" class="opening-master-button" aria-label="20周年へ進む"></button>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="authGate" class="auth-gate" aria-hidden="true">
+    <div class="auth-card">
+      <img src="assets/homes-education-logo.png" alt="HOMES EDUCATION" class="auth-logo">
+      <span class="auth-kicker">20TH ANNIVERSARY / STAFF ONLY</span>
+      <h2>最初の1回だけ、<br>会社メールで確認。</h2>
+      <p>認証後はこの端末でログイン状態を保持します。次回からはそのまま開けます。</p>
+      <label class="auth-label">会社メールアドレス
+        <input id="authEmail" type="email" inputmode="email" autocomplete="email" placeholder="name@homes-edu.com">
+      </label>
+      <button id="authStartBtn" class="auth-primary">認証メールを送る</button>
+      <small id="authHelp" class="auth-help">@homes-edu.com 宛に認証リンクを送ります。認証後はログイン状態を保持します。</small>
+    </div>
+  </section>
+
+  <div class="app-shell app-hidden" id="appShell">
+    <header class="topbar">
+      <img src="assets/homes-education-logo.png" alt="HOMES EDUCATION" class="top-logo-full">
+      <button class="profile-btn" id="profileBtn" aria-label="プロフィール"><span>YY</span></button>
+    </header>
+
+    <main id="mainContent">
+      <section class="hero card-red">
+        <div class="hero-copy">
+          <div class="pill"><span>2027.11.19まであと</span><strong id="daysLeft">---</strong><small>日</small></div>
+          <div class="today-memory" id="todayMemory">
+            <span class="today-memory-kicker">TODAY IN HOMES</span>
+            <span id="todayMemoryText">今日は12年前、マーライオン事件があった日です。</span>
+          </div>
+          <h2>一人ひとりの一歩が、<br><em>20周年をつくる。</em></h2>
+        </div>
+        <div class="hero-rose-wrap" aria-hidden="true"><span class="hero-20">20</span><img src="assets/rose.png" alt="" class="hero-rose"></div>
+      </section>
+
+      <section class="quick-grid">
+        <button class="quick-card" data-route="upload"><span class="quick-icon"><svg><use href="#i-video"/></svg></span><span class="quick-copy"><small>POST</small><b>動画を投稿</b></span><span class="quick-go">→</span></button>
+        <button class="quick-card" data-route="bike"><span class="quick-icon"><svg><use href="#i-bike"/></svg></span><span class="quick-copy"><small>RIDE</small><b>川瀬社長自転車の旅</b></span><span class="quick-go">→</span></button>
+        <button class="quick-card" data-route="missions"><span class="quick-icon"><svg><use href="#i-star"/></svg></span><span class="quick-copy"><small>MISSION</small><b>20周年ミッション</b></span><span class="quick-go">→</span></button>
+        <button class="quick-card" data-route="timeline"><span class="quick-icon"><svg><use href="#i-clock"/></svg></span><span class="quick-copy"><small>HISTORY</small><b>20年の沿革</b></span><span class="quick-go">→</span></button>
+      </section>
+
+      <button class="survey-strip" data-route="survey">
+        <span class="survey-strip-icon"><svg><use href="#i-survey"/></svg></span>
+        <span class="survey-strip-copy"><small>QUESTIONNAIRE</small><b>20周年アンケート</b></span>
+        <span class="survey-strip-go">Googleフォームへ →</span>
+      </button>
+
+      <div class="memory-lead"><span></span><small>EVERY MEMORY BECOMES PART OF 20 YEARS.</small><span></span></div>
+      <section class="section-head">
+        <div><span class="eyebrow dark">MEMORIES</span><h3>新着の思い出</h3></div>
+        <button class="text-btn" id="seeAllPosts">すべて見る →</button>
+      </section>
+      <section id="postFeed" class="post-feed"></section>
+
+      <section class="story-card">
+        <div class="story-copy">
+          <div class="story-badge">FINAL MOVIE</div>
+          <h3>あなたの動画が、<br><strong>20周年パーティーで流れるかも。</strong></h3>
+          <button class="story-cta" data-route="upload">動画を残す <span>→</span></button>
+        </div>
+        <div class="story-mark" aria-hidden="true"><svg><use href="#i-video"/></svg><span><svg><use href="#i-play"/></svg></span></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-route="home"><svg><use href="#i-home"/></svg><small>ホーム</small></button>
+      <button class="nav-item" data-route="bike"><svg><use href="#i-bike"/></svg><small>自転車の旅</small></button>
+      <button class="nav-main" data-route="upload"><svg><use href="#i-plus"/></svg></button>
+      <button class="nav-item" data-route="missions"><svg><use href="#i-star"/></svg><small>ミッション</small></button>
+      <button class="nav-item" data-route="timeline"><svg><use href="#i-clock"/></svg><small>20年の沿革</small></button>
+    </nav>
+  </div>
+
+  <dialog id="screenDialog" class="screen-dialog">
+    <div class="dialog-shell">
+      <div class="dialog-header">
+        <button class="back-btn" id="closeDialog">←</button>
+        <div><div class="eyebrow dark" id="dialogKicker"></div><h2 id="dialogTitle"></h2></div>
+      </div>
+      <div id="dialogBody" class="dialog-body"></div>
+    </div>
+  </dialog>
+
+  <template id="uploadTemplate">
+    <section class="upload-panel">
+      <label class="drop-zone" for="videoInput">
+        <input type="file" id="videoInput" accept="video/*" hidden>
+        <div class="drop-icon"><svg><use href="#i-plus"/></svg></div>
+        <b>動画を選択</b>
+      </label>
+      <div id="videoPreviewArea"></div>
+      <div class="form-grid">
+        <label>タイトル<input id="videoTitle" placeholder="タイトル"></label>
+        <label>投稿者<input id="videoAuthor" placeholder="名前"></label>
+        <label>所属<input id="videoCampus" placeholder="所属"></label>
+        <label>カテゴリ<select id="videoCategory"><option>30秒で語るHOMES</option><option>パロディ動画</option><option>川瀬社長自転車の旅</option><option>昔の写真を再現</option><option>未来へのメッセージ</option></select></label>
+      </div>
+      <label class="check-row"><input id="movieCandidate" type="checkbox" checked> 20周年ムービー候補</label>
+      <button class="primary-btn" id="saveVideoBtn">投稿する</button>
+    </section>
+  </template>
+
+  <template id="bikeTemplate">
+    <section>
+      <div class="bike-hero">
+        <div><span class="eyebrow">KAWASE PRESIDENT RIDE</span><h3>川瀬社長<br><strong>自転車の旅</strong></h3></div>
+        <div class="bike-line-art"><svg><use href="#i-bike"/></svg></div>
+      </div>
+      <div class="bike-day-tabs" role="tablist" aria-label="旅の日程">
+        <button class="bike-day-tab active" data-day="1">DAY 1</button>
+        <button class="bike-day-tab" data-day="2">DAY 2</button>
+        <button class="bike-day-tab" data-day="all">ALL</button>
+      </div>
+      <div class="bike-map" aria-label="川瀬社長自転車の旅マップ">
+        <svg viewBox="0 0 600 360" role="img" aria-label="訪問校舎を示すマップ">
+          <path class="map-land" d="M52 95C123 35 218 48 274 91c51 39 77 39 132 23 56-16 111 5 132 52 27 59-8 126-61 152-48 24-104 13-155-3-46-14-84-11-128 7-49 20-101 13-137-23-46-46-51-146-5-204Z"/>
+          <path class="map-route route-day1" d="M135 238 C190 196 236 178 286 156 S365 123 404 104"/>
+          <path class="map-route route-day2" d="M404 104 C447 126 473 164 451 208 S403 258 356 280"/>
+          <g class="map-pin day1" data-day="1" data-campus="岐阜本部校" transform="translate(135 238)"><circle r="10"/><text x="14" y="4">岐阜本部校</text></g>
+          <g class="map-pin day1" data-day="1" data-campus="岐南校" transform="translate(286 156)"><circle r="10"/><text x="14" y="4">岐南校</text></g>
+          <g class="map-pin day1" data-day="1" data-campus="神戸校" transform="translate(404 104)"><circle r="11"/><text x="15" y="4">神戸校</text></g>
+          <g class="map-pin day2" data-day="2" data-campus="大垣本部校" transform="translate(451 208)"><circle r="9"/><text x="14" y="4">大垣本部校</text></g>
+          <g class="map-pin day2" data-day="2" data-campus="穂積校" transform="translate(356 280)"><circle r="9"/><text x="14" y="4">穂積校</text></g>
+        </svg>
+        <div class="map-legend"><span><i class="visited"></i>訪問済み</span><span><i class="current"></i>現在地</span><span><i></i>これから</span></div>
+      </div>
+      <div class="route-line compact">
+        <div class="route-stop" data-campus="岐阜本部校">
+          <div class="route-photo"><img src="assets/campuses/gifu-hombu.png" alt="岐阜本部校の写真"></div>
+          <div class="route-stop-copy"><b>岐阜本部校</b><small>岐阜県岐阜市</small></div>
+          <span>DAY 1</span>
+        </div>
+        <div class="route-stop" data-campus="岐南校">
+          <div class="route-photo"><img src="assets/campuses/ginan.png" alt="岐南校の写真"></div>
+          <div class="route-stop-copy"><b>岐南校</b><small>岐阜県羽島郡岐南町</small></div>
+          <span>DAY 1</span>
+        </div>
+        <div class="route-stop" data-campus="神戸校">
+          <div class="route-photo"><img src="assets/campuses/goudo.png" alt="神戸校の写真"></div>
+          <div class="route-stop-copy"><b>神戸校</b><small>岐阜県安八郡神戸町</small></div>
+          <span>DAY 1</span>
+        </div>
+        <div class="route-stop day2-stop" data-campus="大垣本部校">
+          <div class="route-photo"><img src="assets/campuses/ogaki-hombu.png" alt="大垣本部校の写真"></div>
+          <div class="route-stop-copy"><b>大垣本部校</b><small>岐阜県大垣市</small></div>
+          <span>DAY 2</span>
+        </div>
+        <div class="route-stop day2-stop" data-campus="穂積校">
+          <div class="route-photo"><img src="assets/campuses/hozumi.png" alt="穂積校の写真"></div>
+          <div class="route-stop-copy"><b>穂積校</b><small>岐阜県瑞穂市</small></div>
+          <span>DAY 2</span>
+        </div>
+      </div>
+      <div class="stat-grid"><div><b>48.2</b><span>km</span><small>走行距離</small></div><div><b id="visitedCount">3</b><span>/5</span><small>訪問校舎</small></div><div><b>327</b><span>件</span><small>投稿</small></div></div>
+      <div class="ride-live-note"><span class="live-dot"></span><span>社長用RIDE MODEと連動</span></div>
+      <a class="secondary-btn ride-admin-link" href="ride-admin.html" target="_blank" rel="noopener">社長用RIDE MODEを開く</a>
+    </section>
+  </template>
+
+  <template id="missionsTemplate">
+    <section class="mission-list">
+      <div class="mission-progress"><div><span>あなたの達成</span><strong>3 / 12</strong></div><div class="bar"><i style="width:25%"></i></div></div>
+      <article class="mission-card featured"><div class="mission-no">MISSION 04</div><h3>30秒で語る<br>「忘れられないHOMES」</h3><button class="small-btn">挑戦する</button></article>
+      <article class="mission-card"><div class="mission-no">MISSION 05</div><h3>昔の写真を完全再現せよ</h3><button class="small-btn">挑戦する</button></article>
+      <article class="mission-card"><div class="mission-no">MISSION 06</div><h3>普段会わない仲間と1枚</h3><button class="small-btn">挑戦する</button></article>
+    </section>
+  </template>
+
+  <template id="timelineTemplate">
+    <section class="timeline">
+      <article><div class="year">2007</div><div><h3>はじまりの年</h3><div class="thumb-row"><div><svg><use href="#i-camera"/></svg></div><div><svg><use href="#i-video"/></svg></div><div><svg><use href="#i-paper"/></svg></div></div></div></article>
+      <article><div class="year">2012</div><div><h3>仲間が増えていく</h3><div class="thumb-row"><div><svg><use href="#i-people"/></svg></div><div><svg><use href="#i-camera"/></svg></div><div><svg><use href="#i-image"/></svg></div></div></div></article>
+      <article><div class="year">2018</div><div><h3>新しい学びへ</h3><div class="thumb-row"><div><svg><use href="#i-paper"/></svg></div><div><svg><use href="#i-people"/></svg></div><div><svg><use href="#i-camera"/></svg></div></div></div></article>
+      <article class="future"><div class="year">2027</div><div><h3>20周年</h3><button class="small-btn">思い出を残す</button></div></article>
+    </section>
+  </template>
+
+  <template id="surveyTemplate">
+    <section class="survey-panel">
+      <div class="survey-hero">
+        <span class="survey-hero-icon"><svg><use href="#i-survey"/></svg></span>
+        <div><span class="eyebrow dark">20TH ANNIVERSARY VOICE</span><h3>みんなの声を、
+20周年へ。</h3></div>
+      </div>
+      <div class="survey-options">
+        <article><b>20周年パーティーについて</b><small>企画・参加・アイデア</small></article>
+        <article><b>HOMESの思い出</b><small>記念誌・動画企画へ</small></article>
+        <article><b>次の20年へ</b><small>メッセージ・提案</small></article>
+      </div>
+      <a class="google-form-btn" href="https://docs.google.com/forms/" target="_blank" rel="noopener">Googleフォームで回答 <span>→</span></a>
+    </section>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
