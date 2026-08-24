@@ -63,6 +63,7 @@ Deno.serve(async (req) => {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        Origin: ALLOWED_ORIGIN,
         'Content-Type': 'application/json; charset=UTF-8',
         'X-Upload-Content-Type': mimeType,
         'X-Upload-Content-Length': String(size),

@@ -13,7 +13,6 @@
 
 
 ## v5.1
-- iPhone/PWAで古いJSが残る問題を修正
-- Service Workerキャッシュをv51へ更新
-- app.js/styles.css/supabase-config.jsにキャッシュバスター付与
-- コアファイルはnetwork-firstに変更
+Google Drive resumable upload session initialization now sends the GitHub Pages Origin so the browser PUT upload can satisfy CORS.
+
+- v5.2: 新着の思い出カードをタップして写真拡大／動画再生できる詳細ビューを追加。自動横スクロールがタッチ操作後に止まり続ける問題も修正。

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=51" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true">
@@ -246,8 +246,23 @@
     </section>
   </template>
 
+
+  <div id="postDetailModal" class="post-detail-modal" aria-hidden="true">
+    <button class="post-detail-backdrop" data-close-post-detail aria-label="閉じる"></button>
+    <section class="post-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="postDetailTitle">
+      <button class="post-detail-close" data-close-post-detail aria-label="閉じる">×</button>
+      <div id="postDetailMedia" class="post-detail-media"></div>
+      <div class="post-detail-copy">
+        <span class="post-detail-eyebrow">HOMES MEMORY</span>
+        <h3 id="postDetailTitle"></h3>
+        <p id="postDetailMeta"></p>
+        <div id="postDetailExtra"></div>
+      </div>
+    </section>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=51"></script>
-  <script src="app.js?v=51"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,4 +1,3 @@
-const HOMES_BUILD='5.1';
 let posts = [
   {title:'元非常勤からのメッセージ', author:'HOMES MEMORY', icon:'camera', alt:false, image:'assets/memories/memory-01.jpeg', tag:'MEMORY'},
   {title:'あのシーンを再現してみた', author:'HOMES ARCHIVE', icon:'camera', alt:false, image:'assets/memories/memory-03.jpeg', tag:'ARCHIVE'},
@@ -17,37 +16,133 @@ function escapeHtml(v){
   return String(v).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
 let autoScrollTimer=null;
+let autoScrollResumeTimer=null;
 function renderPosts(){
   const feed=document.getElementById('postFeed');
   const loopPosts=[...posts, ...posts];
-  feed.innerHTML=loopPosts.map((p,i)=>`<article class="post-card ${p.image?'photo-card':''}" ${i>=posts.length?'aria-hidden="true"':''}><div class="post-thumb ${p.alt?'alt':''}">${p.image?`<img src="${p.image}" alt="${escapeHtml(p.title)}"><div class="post-overlay"></div><div class="post-chip">${escapeHtml(p.tag||'HOMES')}</div>`:lineIcon(p.icon)}<div class="post-play">${lineIcon('play')}</div></div><div class="post-meta"><b>${p.title}</b><small>${p.author}</small></div></article>`).join('');
+  feed.innerHTML=loopPosts.map((p,i)=>`<article class="post-card ${p.image?'photo-card':''}" data-post-index="${i%posts.length}" ${i>=posts.length?'aria-hidden="true"':''} tabindex="0" role="button"><div class="post-thumb ${p.alt?'alt':''}">${p.image?`<img src="${p.image}" alt="${escapeHtml(p.title)}"><div class="post-overlay"></div><div class="post-chip">${escapeHtml(p.tag||'HOMES')}</div>`:lineIcon(p.icon)}<div class="post-play">${lineIcon('play')}</div></div><div class="post-meta"><b>${escapeHtml(p.title)}</b><small>${escapeHtml(p.author)}</small></div></article>`).join('');
+  feed.querySelectorAll('.post-card').forEach(card=>{
+    const open=()=>openPostDetail(posts[Number(card.dataset.postIndex)]);
+    card.addEventListener('click',open);
+    card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
+  });
 }
 
 function startAutoScroll(){
   const feed=document.getElementById('postFeed');
   if(!feed) return;
   if(autoScrollTimer) cancelAnimationFrame(autoScrollTimer);
+  if(autoScrollResumeTimer) clearTimeout(autoScrollResumeTimer);
+  if(feed._autoScrollCleanup) feed._autoScrollCleanup();
   let paused=false;
   let lastTime=0;
-  const pxPerFrame=0.55;
+  const pxPerSecond=33;
   const getLoopWidth=()=> feed.scrollWidth/2;
+  const pause=()=>{paused=true;if(autoScrollResumeTimer) clearTimeout(autoScrollResumeTimer);};
+  const resumeSoon=(delay=1300)=>{
+    if(autoScrollResumeTimer) clearTimeout(autoScrollResumeTimer);
+    autoScrollResumeTimer=setTimeout(()=>{paused=false;lastTime=performance.now();},delay);
+  };
   const tick=(time)=>{
+    if(!lastTime) lastTime=time;
+    const dt=Math.min(40,time-lastTime);
+    lastTime=time;
     if(!paused){
       const loopWidth=getLoopWidth();
       if(loopWidth>0){
         if(feed.scrollLeft >= loopWidth) feed.scrollLeft -= loopWidth;
-        feed.scrollLeft += pxPerFrame;
+        feed.scrollLeft += pxPerSecond*(dt/1000);
       }
     }
     autoScrollTimer=requestAnimationFrame(tick);
   };
+  const onMouseEnter=()=>pause();
+  const onMouseLeave=()=>resumeSoon(500);
+  const onPointerDown=()=>pause();
+  const onPointerUp=()=>resumeSoon();
+  const onPointerCancel=()=>resumeSoon();
+  const onTouchStart=()=>pause();
+  const onTouchEnd=()=>resumeSoon();
+  const onTouchCancel=()=>resumeSoon();
+  const onFocusIn=()=>pause();
+  const onFocusOut=()=>resumeSoon(500);
+  feed.addEventListener('mouseenter',onMouseEnter,{passive:true});
+  feed.addEventListener('mouseleave',onMouseLeave,{passive:true});
+  feed.addEventListener('pointerdown',onPointerDown,{passive:true});
+  feed.addEventListener('pointerup',onPointerUp,{passive:true});
+  feed.addEventListener('pointercancel',onPointerCancel,{passive:true});
+  feed.addEventListener('touchstart',onTouchStart,{passive:true});
+  feed.addEventListener('touchend',onTouchEnd,{passive:true});
+  feed.addEventListener('touchcancel',onTouchCancel,{passive:true});
+  feed.addEventListener('focusin',onFocusIn);
+  feed.addEventListener('focusout',onFocusOut);
+  feed._autoScrollCleanup=()=>{
+    feed.removeEventListener('mouseenter',onMouseEnter);
+    feed.removeEventListener('mouseleave',onMouseLeave);
+    feed.removeEventListener('pointerdown',onPointerDown);
+    feed.removeEventListener('pointerup',onPointerUp);
+    feed.removeEventListener('pointercancel',onPointerCancel);
+    feed.removeEventListener('touchstart',onTouchStart);
+    feed.removeEventListener('touchend',onTouchEnd);
+    feed.removeEventListener('touchcancel',onTouchCancel);
+    feed.removeEventListener('focusin',onFocusIn);
+    feed.removeEventListener('focusout',onFocusOut);
+  };
   feed.scrollLeft=0;
   autoScrollTimer=requestAnimationFrame(tick);
-  ['mouseenter','touchstart','pointerdown','focusin'].forEach(evt=>feed.addEventListener(evt,()=>paused=true,{passive:true}));
-  ['mouseleave','touchend','pointerup','focusout'].forEach(evt=>feed.addEventListener(evt,()=>paused=false,{passive:true}));
+}
+
+function isVideoPost(post){
+  if(post?.isVideo) return true;
+  const name=String(post?.originalFilename||'').toLowerCase();
+  return /\.(mp4|mov|m4v|webm)$/i.test(name) || post?.icon==='video';
+}
+
+function closePostDetail(){
+  const modal=document.getElementById('postDetailModal');
+  if(!modal) return;
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+  document.body.classList.remove('modal-open');
+  const media=document.getElementById('postDetailMedia');
+  if(media) media.innerHTML='';
+}
+
+function openPostDetail(post){
+  if(!post) return;
+  const modal=document.getElementById('postDetailModal');
+  const media=document.getElementById('postDetailMedia');
+  const title=document.getElementById('postDetailTitle');
+  const meta=document.getElementById('postDetailMeta');
+  const extra=document.getElementById('postDetailExtra');
+  if(!modal||!media||!title||!meta||!extra) return;
+  const video=isVideoPost(post);
+  if(video && post.driveFileId){
+    media.innerHTML=`<iframe class="post-detail-video" src="https://drive.google.com/file/d/${encodeURIComponent(post.driveFileId)}/preview" allow="autoplay; fullscreen" allowfullscreen title="${escapeHtml(post.title)}"></iframe>`;
+  }else if(post.image){
+    media.innerHTML=`<img class="post-detail-image" src="${post.image}" alt="${escapeHtml(post.title)}">`;
+  }else{
+    media.innerHTML=`<div class="post-detail-placeholder">${lineIcon(video?'video':'camera')}</div>`;
+  }
+  title.textContent=post.title||'無題';
+  const bits=[post.author,post.campus,post.category].filter(Boolean);
+  meta.textContent=bits.join(' ・ ')||'HOMES';
+  extra.innerHTML='';
+  if(video && post.driveWebViewUrl){
+    extra.innerHTML=`<a class="post-detail-drive" href="${post.driveWebViewUrl}" target="_blank" rel="noopener">Google Driveで原本を開く <span>→</span></a>`;
+  }else if(post.driveWebViewUrl){
+    extra.innerHTML=`<a class="post-detail-drive" href="${post.driveWebViewUrl}" target="_blank" rel="noopener">原本を見る <span>→</span></a>`;
+  }
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden','false');
+  document.body.classList.add('modal-open');
 }
 renderPosts();
 startAutoScroll();
+document.addEventListener('click',e=>{
+  if(e.target?.matches?.('[data-close-post-detail]')) closePostDetail();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closePostDetail();});
 
 
 
@@ -111,7 +206,7 @@ const sb=SUPABASE_READY ? window.supabase.createClient(SB_CONFIG.url,SB_CONFIG.p
 async function loadSupabasePosts(){
   if(!sb) return;
   const {data,error}=await sb.from('anniversary_posts')
-    .select('id,title,author_name,campus,category,preview_url,created_at')
+    .select('id,title,author_name,campus,category,preview_url,created_at,drive_file_id,drive_web_view_url,original_filename')
     .order('created_at',{ascending:false})
     .limit(20);
   if(error){ console.warn('投稿一覧の取得に失敗',error); return; }
@@ -123,7 +218,13 @@ async function loadSupabasePosts(){
     icon:'video',
     alt:false,
     image:row.preview_url||null,
-    tag:'NEW'
+    tag:'NEW',
+    campus:row.campus||'',
+    category:row.category||'',
+    driveFileId:row.drive_file_id||'',
+    driveWebViewUrl:row.drive_web_view_url||'',
+    originalFilename:row.original_filename||'',
+    isVideo:/\.(mp4|mov|m4v|webm)$/i.test(row.original_filename||'')
   }));
   const remoteIds=new Set(remote.map(x=>x.id));
   posts=[...remote,...posts.filter(x=>!x.id||!remoteIds.has(x.id))];
@@ -493,7 +594,7 @@ function initUpload(){
       return;
     }
 
-    posts.unshift({id:inserted?.id,title:t,author:a,icon:selectedFile.type.startsWith('image/')?'camera':'video',alt:true,image:previewUrl,tag:'NEW'});
+    posts.unshift({id:inserted?.id,title:t,author:a,icon:selectedFile.type.startsWith('image/')?'camera':'video',alt:true,image:previewUrl,tag:'NEW',campus:campus||'',category:category||'',driveFileId:driveResult?.fileId||'',driveWebViewUrl:driveResult?.webViewUrl||'',originalFilename:selectedFile.name,isVideo:selectedFile.type.startsWith('video/')});
     renderPosts();
     startAutoScroll();
     previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status success">投稿できました。原本は会社Google Driveに保存されています。</small>`);
