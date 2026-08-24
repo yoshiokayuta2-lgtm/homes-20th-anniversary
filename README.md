@@ -15,4 +15,9 @@
 ## v5.1
 Google Drive resumable upload session initialization now sends the GitHub Pages Origin so the browser PUT upload can satisfy CORS.
 
-- v5.2: 新着の思い出カードをタップして写真拡大／動画再生できる詳細ビューを追加。自動横スクロールがタッチ操作後に止まり続ける問題も修正。
+- v5.3: 新着の思い出カードをタップして写真拡大／動画再生できる詳細ビューを追加。自動横スクロールがタッチ操作後に止まり続ける問題も修正。
+
+
+## v5.3
+- 投稿成功直後の新着カード追加処理で未定義変数を参照していた不具合を修正。
+- Google Drive原本名の列名を `original_file_name` 優先で読み込み、動画判定を安定化。

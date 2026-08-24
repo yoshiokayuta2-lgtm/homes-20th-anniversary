@@ -206,7 +206,7 @@ const sb=SUPABASE_READY ? window.supabase.createClient(SB_CONFIG.url,SB_CONFIG.p
 async function loadSupabasePosts(){
   if(!sb) return;
   const {data,error}=await sb.from('anniversary_posts')
-    .select('id,title,author_name,campus,category,preview_url,created_at,drive_file_id,drive_web_view_url,original_filename')
+    .select('id,title,author_name,campus,category,preview_url,created_at,drive_file_id,drive_web_view_url,original_file_name,original_filename')
     .order('created_at',{ascending:false})
     .limit(20);
   if(error){ console.warn('投稿一覧の取得に失敗',error); return; }
@@ -223,8 +223,8 @@ async function loadSupabasePosts(){
     category:row.category||'',
     driveFileId:row.drive_file_id||'',
     driveWebViewUrl:row.drive_web_view_url||'',
-    originalFilename:row.original_filename||'',
-    isVideo:/\.(mp4|mov|m4v|webm)$/i.test(row.original_filename||'')
+    originalFilename:row.original_file_name||row.original_filename||'',
+    isVideo:/\.(mp4|mov|m4v|webm)$/i.test(row.original_file_name||row.original_filename||'')
   }));
   const remoteIds=new Set(remote.map(x=>x.id));
   posts=[...remote,...posts.filter(x=>!x.id||!remoteIds.has(x.id))];
@@ -594,7 +594,7 @@ function initUpload(){
       return;
     }
 
-    posts.unshift({id:inserted?.id,title:t,author:a,icon:selectedFile.type.startsWith('image/')?'camera':'video',alt:true,image:previewUrl,tag:'NEW',campus:campus||'',category:category||'',driveFileId:driveResult?.fileId||'',driveWebViewUrl:driveResult?.webViewUrl||'',originalFilename:selectedFile.name,isVideo:selectedFile.type.startsWith('video/')});
+    posts.unshift({id:inserted?.id,title:t,author:a,icon:selectedFile.type.startsWith('image/')?'camera':'video',alt:true,image:previewUrl,tag:'NEW',campus:campus||'',category:category||'',driveFileId:driveFile?.id||'',driveWebViewUrl:driveFile?.webViewLink||'',originalFilename:driveFile?.name||selectedFile.name,isVideo:selectedFile.type.startsWith('video/')});
     renderPosts();
     startAutoScroll();
     previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status success">投稿できました。原本は会社Google Driveに保存されています。</small>`);
