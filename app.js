@@ -128,7 +128,8 @@ function openPostDetail(post){
   if(!modal||!media||!title||!meta||!extra) return;
   const video=isVideoPost(post);
   if(video && post.driveFileId){
-    media.innerHTML=`<iframe class="post-detail-video" src="https://drive.google.com/file/d/${encodeURIComponent(post.driveFileId)}/preview" allow="autoplay; fullscreen" allowfullscreen title="${escapeHtml(post.title)}"></iframe>`;
+    const streamUrl=`${DRIVE_INIT_FUNCTION}?file_id=${encodeURIComponent(post.driveFileId)}`;
+    media.innerHTML=`<video class="post-detail-video-player" src="${streamUrl}" controls playsinline preload="metadata" poster="${post.image||''}" title="${escapeHtml(post.title)}"></video>`;
   }else if(post.image){
     media.innerHTML=`<img class="post-detail-image" src="${post.image}" alt="${escapeHtml(post.title)}">`;
   }else{

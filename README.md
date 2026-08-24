@@ -15,9 +15,21 @@
 ## v5.1
 Google Drive resumable upload session initialization now sends the GitHub Pages Origin so the browser PUT upload can satisfy CORS.
 
-- v5.4: 新着の思い出カードをタップして写真拡大／動画再生できる詳細ビューを追加。自動横スクロールがタッチ操作後に止まり続ける問題も修正。
+- v5.5: 新着の思い出カードをタップして写真拡大／動画再生できる詳細ビューを追加。自動横スクロールがタッチ操作後に止まり続ける問題も修正。
 
 
-## v5.4
+## v5.5
 - 投稿成功直後の新着カード追加処理で未定義変数を参照していた不具合を修正。
 - Google Drive原本名の列名を `original_file_name` 優先で読み込み、動画判定を安定化。
+
+
+## v5.5
+- 動画詳細をGoogle Drive埋め込みではなくEdge Function経由のHTML5 video再生に変更。
+- Drive原本は非公開のまま、アプリ内からRange対応でストリーミング再生。
+- 追加のSQL/Secretは不要。drive-init-upload Edge Functionの再デプロイが必要。
+
+
+## v5.6
+- PWA/service worker cache version bumped to homes20-v56
+- app.js/styles.css/supabase-config.js use cache-busting query strings
+- app shell uses network-first for HTML/JS/CSS/config so GitHub updates appear immediately

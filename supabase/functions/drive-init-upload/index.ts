@@ -6,8 +6,9 @@ function cors(origin: string | null) {
   const allow = origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN;
   return {
     'Access-Control-Allow-Origin': allow,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, range',
+    'Access-Control-Allow-Methods': 'GET, HEAD, POST, OPTIONS',
+    'Access-Control-Expose-Headers': 'content-length, content-range, accept-ranges, content-type',
     'Vary': 'Origin',
   };
 }
@@ -43,7 +44,6 @@ Deno.serve(async (req) => {
   const origin = req.headers.get('origin');
   const headers = cors(origin);
   if (req.method === 'OPTIONS') return new Response('ok', { headers });
-  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers });
   if (origin && origin !== ALLOWED_ORIGIN) {
     return new Response(JSON.stringify({ error: 'Origin not allowed' }), {
       status: 403,
@@ -52,6 +52,34 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // 動画のアプリ内再生用。Google Drive原本をEdge Function経由でストリーミングする。
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      const requestUrl = new URL(req.url);
+      const fileId = requestUrl.searchParams.get('file_id') || '';
+      if (!/^[A-Za-z0-9_-]{10,}$/.test(fileId)) {
+        return new Response('Invalid file id', { status: 400, headers });
+      }
+      const accessToken = await getGoogleAccessToken();
+      const driveUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
+      const driveHeaders = new Headers({ Authorization: `Bearer ${accessToken}` });
+      const range = req.headers.get('range');
+      if (range) driveHeaders.set('Range', range);
+      const mediaResponse = await fetch(driveUrl, { method: req.method, headers: driveHeaders });
+      const outHeaders = new Headers(headers);
+      for (const name of ['content-type','content-length','content-range','accept-ranges','etag','last-modified']) {
+        const value = mediaResponse.headers.get(name);
+        if (value) outHeaders.set(name, value);
+      }
+      if (!outHeaders.has('accept-ranges')) outHeaders.set('accept-ranges', 'bytes');
+      outHeaders.set('cache-control', 'private, max-age=300');
+      return new Response(req.method === 'HEAD' ? null : mediaResponse.body, {
+        status: mediaResponse.status,
+        headers: outHeaders,
+      });
+    }
+
+    if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers });
+
     const { fileName, mimeType, size, kind } = await req.json();
     if (!fileName || !mimeType || !Number.isFinite(Number(size))) {
       throw new Error('ファイル情報が不足しています。');
