@@ -1,8 +1,12 @@
-# HOMES 20周年アプリ v4.8
+# HOMES 20周年アプリ v5.0
 
-- 投稿者名の入力欄を廃止し、初回ログイン時の名前を自動利用
-- 所属を「校舎・部署など／任意」と明確化
-- 動画は横向き（16:9）推奨の案内を追加
-- 縦向き動画を選んだ場合は投稿を止めず注意表示
-- iPhoneの入力時自動ズーム対策として入力欄16px以上を維持
-- v4.7のSupabase Storageサムネイル機能を継承
+- サムネイル: Supabase Storage
+- 原本写真: 会社Google Drive `HOMES/20周年/01_写真原本`
+- 原本動画: 会社Google Drive `HOMES/20周年/02_動画原本`
+- Google DriveはSupabase Edge Function + Google OAuthで安全に接続
+- 原本アップロード中は進捗%を表示
+- Drive保存失敗時は投稿情報を登録しない
+- 投稿者名は初回ログイン名を自動使用
+- 動画は横向き撮影推奨
+
+初回設定は `GOOGLE-DRIVE-SETUP.md` を参照してください。

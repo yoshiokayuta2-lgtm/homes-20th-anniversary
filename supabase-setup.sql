@@ -59,3 +59,9 @@ on storage.objects
 for insert
 to anon
 with check (bucket_id = 'anniversary-previews');
+
+-- v5.0: Google Drive原本の管理情報
+alter table public.anniversary_posts add column if not exists drive_web_view_url text;
+alter table public.anniversary_posts add column if not exists original_file_name text;
+alter table public.anniversary_posts add column if not exists original_mime_type text;
+alter table public.anniversary_posts add column if not exists original_size bigint;

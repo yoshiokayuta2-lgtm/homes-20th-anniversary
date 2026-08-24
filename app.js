@@ -188,6 +188,67 @@ async function makeVideoThumbnail(file){
   }finally{ URL.revokeObjectURL(url); }
 }
 
+
+function safeFilePart(value){
+  return String(value||'')
+    .normalize('NFKC')
+    .replace(/[\\/:*?\"<>|#%{}~]/g,'_')
+    .replace(/\s+/g,'_')
+    .replace(/_+/g,'_')
+    .replace(/^_+|_+$/g,'')
+    .slice(0,60);
+}
+
+function buildDriveFileName(file,author,title){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const stamp=`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const ext=(file.name.match(/\.[^.]+$/)||[''])[0].slice(0,12);
+  const base=[stamp,safeFilePart(author),safeFilePart(title)].filter(Boolean).join('_');
+  return `${base||stamp}${ext}`;
+}
+
+function uploadFileToResumableUrl(uploadUrl,file,onProgress){
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('PUT',uploadUrl,true);
+    xhr.setRequestHeader('Content-Type',file.type||'application/octet-stream');
+    xhr.upload.onprogress=(e)=>{
+      if(e.lengthComputable && onProgress) onProgress(Math.round(e.loaded/e.total*100));
+    };
+    xhr.onerror=()=>reject(new Error('Google Driveへの通信に失敗しました。'));
+    xhr.onload=()=>{
+      if(xhr.status>=200 && xhr.status<300){
+        try{ resolve(JSON.parse(xhr.responseText||'{}')); }
+        catch(_e){ resolve({}); }
+      }else{
+        reject(new Error(`Google Driveへの保存に失敗しました（${xhr.status}）`));
+      }
+    };
+    xhr.send(file);
+  });
+}
+
+async function uploadOriginalToDrive(file,author,title,onProgress){
+  if(!sb) throw new Error('Supabaseに接続できていません。');
+  const kind=file.type.startsWith('image/')?'image':'video';
+  const fileName=buildDriveFileName(file,author,title);
+  const {data,error}=await sb.functions.invoke('drive-init-upload',{
+    body:{fileName,mimeType:file.type||'application/octet-stream',size:file.size,kind}
+  });
+  if(error) throw new Error(error.message||'Google Driveのアップロード準備に失敗しました。');
+  if(data?.error) throw new Error(data.error);
+  if(!data?.uploadUrl) throw new Error('Google DriveのアップロードURLを取得できませんでした。');
+  const result=await uploadFileToResumableUrl(data.uploadUrl,file,onProgress);
+  return {
+    id:result?.id||null,
+    name:result?.name||fileName,
+    webViewLink:result?.webViewLink||null,
+    size:Number(result?.size||file.size),
+    mimeType:result?.mimeType||file.type||null
+  };
+}
+
 async function createAndUploadPreview(file){
   if(!sb) return null;
   const blob=file.type.startsWith('image/') ? await makeImageThumbnail(file) : await makeVideoThumbnail(file);
@@ -390,6 +451,20 @@ function initUpload(){
       console.warn('サムネイル作成/保存に失敗',previewError);
     }
 
+    let driveFile=null;
+    try{
+      saveBtn.textContent='原本をGoogle Driveへ保存中…';
+      driveFile=await uploadOriginalToDrive(selectedFile,a,t,(percent)=>{
+        saveBtn.textContent=`原本をGoogle Driveへ保存中… ${percent}%`;
+      });
+    }catch(driveError){
+      console.error(driveError);
+      saveBtn.disabled=false;
+      saveBtn.textContent='投稿する';
+      previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status error">原本をGoogle Driveへ保存できなかったため、投稿を中止しました：${escapeHtml(driveError.message)}</small>`);
+      return;
+    }
+
     saveBtn.textContent='投稿情報を保存中…';
     const {data:inserted,error}=await sb.from('anniversary_posts').insert({
       user_id:null,
@@ -398,7 +473,11 @@ function initUpload(){
       author_name:a,
       campus,
       category,
-      drive_file_id:null,
+      drive_file_id:driveFile?.id||null,
+      drive_web_view_url:driveFile?.webViewLink||null,
+      original_file_name:driveFile?.name||selectedFile.name,
+      original_mime_type:driveFile?.mimeType||selectedFile.type||null,
+      original_size:driveFile?.size||selectedFile.size,
       preview_url:previewUrl,
       is_public:false,
       final_movie_candidate:finalCandidate
@@ -409,15 +488,15 @@ function initUpload(){
 
     if(error){
       console.error(error);
-      previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status error">保存できませんでした：${escapeHtml(error.message)}</small>`);
+      previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status error">原本はGoogle Driveに保存されましたが、投稿情報の保存に失敗しました：${escapeHtml(error.message)}</small>`);
       return;
     }
 
     posts.unshift({id:inserted?.id,title:t,author:a,icon:selectedFile.type.startsWith('image/')?'camera':'video',alt:true,image:previewUrl,tag:'NEW'});
     renderPosts();
     startAutoScroll();
-    previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status success">投稿できました。${previewUrl?'サムネイルも保存しました。':'サムネイルだけ作成できなかったため仮表示です。'} 原本のGoogle Drive保存は次の接続で追加します。</small>`);
-    setTimeout(()=>dialog.close(),1100);
+    previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status success">投稿できました。原本は会社Google Driveに保存されています。</small>`);
+    setTimeout(()=>dialog.close(),1200);
   });
 }
 
