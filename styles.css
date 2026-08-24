@@ -26,3 +26,10 @@
 
 /* v4.1 - persistent staff session + PWA shell */
 .auth-gate{position:fixed;inset:0;z-index:900;display:none;place-items:center;padding:24px;background:#f5f0e8}.auth-gate.show{display:grid}.auth-card{width:min(100%,440px);background:#fff;border:1px solid #eadfd7;border-radius:30px;padding:34px 30px 30px;box-shadow:0 24px 60px rgba(36,26,24,.10)}.auth-logo{display:block;width:180px;height:auto;margin:0 0 26px}.auth-kicker{display:block;font-size:9px;font-weight:800;letter-spacing:.16em;color:#aaa19b;margin-bottom:10px}.auth-card h2{margin:0;font-family:'Noto Serif JP',serif;font-size:30px;line-height:1.45;font-weight:600}.auth-card>p{margin:15px 0 24px;color:#7f7772;font-size:13px;line-height:1.8}.auth-label{display:grid;gap:8px;font-size:11px;font-weight:700;color:#5f5752}.auth-label input{width:100%;border:1px solid #e4dad3;background:#fbf8f5;border-radius:16px;padding:15px 16px;font:inherit;font-size:14px;outline:none}.auth-label input:focus{border-color:#d6a3a0;box-shadow:0 0 0 4px rgba(201,42,34,.07)}.auth-primary{width:100%;margin-top:14px;border:0;border-radius:16px;background:var(--red);color:#fff;padding:15px 18px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}.auth-help{display:block;margin-top:14px;color:#a29a94;font-size:9px;line-height:1.65}.auth-help.error{color:var(--red);font-weight:700}.profile-btn{cursor:pointer}@media(max-width:560px){.auth-gate{padding:16px}.auth-card{padding:30px 22px 24px;border-radius:26px}.auth-card h2{font-size:27px}}
+
+
+/* v4.4 upload test */
+.upload-image-preview{width:100%;max-height:320px;object-fit:cover;border-radius:18px;display:block;background:#eee}
+.upload-status{display:block;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.5}
+.upload-status.success{background:#eef9f0;color:#215c2c}
+.upload-status.error{background:#fff0f0;color:#9a1f1f}

@@ -1,12 +1,9 @@
-# HOMES 20周年アプリ v4.2
+# HOMES 20周年アプリ v4.4
 
-Supabase Auth 接続情報設定済み版です。
+Supabase投稿テスト対応版です。
 
-1. Supabaseで無料プロジェクトを作成
-2. Project URL / Publishable Key は `supabase-config.js` に設定済み
-3. Supabase SQL Editorで `supabase-setup.sql` を実行
-4. Auth > URL Configuration で公開URLを Site URL / Redirect URL に登録
-
-ログインは `@homes-edu.com` のメールリンク認証です。Supabaseのブラウザセッションを利用するため、通常は毎回ログインする必要はありません。
-
-写真・動画原本のGoogle Drive自動保存は次段階で接続します。
+- @homes-edu.com メール認証
+- 写真 / 動画を選択可能
+- 投稿時に `anniversary_posts` へ投稿情報を保存
+- 原本ファイルはまだGoogle Driveへ送信しません（次段階）
+- Supabase Table Editor で新しい行が追加されればテスト成功です

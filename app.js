@@ -209,7 +209,7 @@ const title=document.getElementById('dialogTitle');
 const kicker=document.getElementById('dialogKicker');
 const body=document.getElementById('dialogBody');
 const templates={upload:'uploadTemplate',bike:'bikeTemplate',missions:'missionsTemplate',timeline:'timelineTemplate',survey:'surveyTemplate'};
-const labels={upload:['POST YOUR MEMORY','動画を投稿'],bike:['KAWASE PRESIDENT RIDE','川瀬社長自転車の旅'],missions:['20TH ANNIVERSARY QUEST','20周年ミッション'],timeline:['HOMES TIME MACHINE','20年の沿革'],survey:['QUESTIONNAIRE','20周年アンケート']};
+const labels={upload:['POST YOUR MEMORY','写真・動画を投稿'],bike:['KAWASE PRESIDENT RIDE','川瀬社長自転車の旅'],missions:['20TH ANNIVERSARY QUEST','20周年ミッション'],timeline:['HOMES TIME MACHINE','20年の沿革'],survey:['QUESTIONNAIRE','20周年アンケート']};
 
 function openRoute(route){
   if(route==='home') return;
@@ -241,25 +241,82 @@ function initUpload(){
   const previewArea=document.getElementById('videoPreviewArea');
   const saveBtn=document.getElementById('saveVideoBtn');
   let selectedFile=null;
+  let selectedObjectUrl='';
+
   input.addEventListener('change',()=>{
     selectedFile=input.files?.[0]||null;
     if(!selectedFile) return;
-    const url=URL.createObjectURL(selectedFile);
-    previewArea.innerHTML=`<div class="video-preview"><video id="previewVideo" src="${url}" controls playsinline></video><div class="video-fileinfo"><b>${selectedFile.name}</b><br>${readableBytes(selectedFile.size)}</div></div>`;
-    const video=document.getElementById('previewVideo');
-    video.addEventListener('loadedmetadata',()=>{
-      const info=previewArea.querySelector('.video-fileinfo');
-      info.innerHTML=`<b>${selectedFile.name}</b><br>${readableBytes(selectedFile.size)} ・ ${fmtDuration(video.duration)} ・ ${video.videoWidth}×${video.videoHeight}px`;
-    });
+    if(selectedObjectUrl) URL.revokeObjectURL(selectedObjectUrl);
+    selectedObjectUrl=URL.createObjectURL(selectedFile);
+    const isImage=selectedFile.type.startsWith('image/');
+    const media=isImage
+      ? `<img class="upload-image-preview" src="${selectedObjectUrl}" alt="選択した写真">`
+      : `<video id="previewVideo" src="${selectedObjectUrl}" controls playsinline></video>`;
+    previewArea.innerHTML=`<div class="video-preview">${media}<div class="video-fileinfo"><b>${escapeHtml(selectedFile.name)}</b><br>${readableBytes(selectedFile.size)}</div></div>`;
+    if(!isImage){
+      const video=document.getElementById('previewVideo');
+      video?.addEventListener('loadedmetadata',()=>{
+        const info=previewArea.querySelector('.video-fileinfo');
+        info.innerHTML=`<b>${escapeHtml(selectedFile.name)}</b><br>${readableBytes(selectedFile.size)} ・ ${fmtDuration(video.duration)} ・ ${video.videoWidth}×${video.videoHeight}px`;
+      });
+    }
   });
-  saveBtn.addEventListener('click',()=>{
-    if(!selectedFile){return;}
-    const t=document.getElementById('videoTitle').value.trim()||'無題の動画';
-    const a=document.getElementById('videoAuthor').value.trim()||'投稿者';
-    posts.unshift({title:t,author:a,icon:'video',alt:true});
+
+  saveBtn.addEventListener('click',async()=>{
+    if(!selectedFile){
+      previewArea.insertAdjacentHTML('beforeend','<small class="upload-status error">写真または動画を選択してください。</small>');
+      return;
+    }
+    if(!sb){
+      previewArea.insertAdjacentHTML('beforeend','<small class="upload-status error">Supabaseに接続できていません。</small>');
+      return;
+    }
+
+    const {data:{session}}=await sb.auth.getSession();
+    const user=session?.user;
+    const email=user?.email?.toLowerCase()||'';
+    if(!user || !email.endsWith('@homes-edu.com')){
+      previewArea.insertAdjacentHTML('beforeend','<small class="upload-status error">ログイン情報を確認できません。再度ログインしてください。</small>');
+      return;
+    }
+
+    const t=document.getElementById('videoTitle').value.trim()||(selectedFile.type.startsWith('image/')?'無題の写真':'無題の動画');
+    const a=document.getElementById('videoAuthor').value.trim()||email.split('@')[0];
+    const campus=document.getElementById('videoCampus').value.trim();
+    const category=document.getElementById('videoCategory').value;
+    const finalCandidate=document.getElementById('movieCandidate').checked;
+
+    saveBtn.disabled=true;
+    saveBtn.textContent='Supabaseに保存中…';
+    previewArea.querySelectorAll('.upload-status').forEach(el=>el.remove());
+
+    const {error}=await sb.from('anniversary_posts').insert({
+      user_id:user.id,
+      email,
+      title:t,
+      author_name:a,
+      campus,
+      category,
+      drive_file_id:null,
+      preview_url:null,
+      is_public:false,
+      final_movie_candidate:finalCandidate
+    });
+
+    saveBtn.disabled=false;
+    saveBtn.textContent='投稿する';
+
+    if(error){
+      console.error(error);
+      previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status error">保存できませんでした：${escapeHtml(error.message)}</small>`);
+      return;
+    }
+
+    posts.unshift({title:t,author:a,icon:selectedFile.type.startsWith('image/')?'camera':'video',alt:true,tag:'NEW'});
     renderPosts();
     startAutoScroll();
-    dialog.close();
+    previewArea.insertAdjacentHTML('beforeend','<small class="upload-status success">Supabaseに投稿情報を保存しました。原本のGoogle Drive保存は次の接続で追加します。</small>');
+    setTimeout(()=>dialog.close(),900);
   });
 }
 
