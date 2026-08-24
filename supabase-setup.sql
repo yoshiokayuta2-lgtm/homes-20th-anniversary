@@ -1,10 +1,11 @@
--- HOMES 20周年アプリ: 最小構成
--- Supabase SQL Editor で実行してください。
+-- HOMES 20周年アプリ v4.5: シンプル社員ログイン版
+-- Supabase SQL Editor で1回実行してください。
+-- メール認証は使わず、アプリ側の「お名前＋社員共通コード」で入ります。
 
 create table if not exists public.anniversary_posts (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  email text not null,
+  user_id uuid references auth.users(id) on delete set null,
+  email text,
   title text not null,
   author_name text,
   campus text,
@@ -16,25 +17,19 @@ create table if not exists public.anniversary_posts (
   created_at timestamptz not null default now()
 );
 
+alter table public.anniversary_posts alter column user_id drop not null;
+alter table public.anniversary_posts alter column email drop not null;
 alter table public.anniversary_posts enable row level security;
 
--- @homes-edu.com の認証済みユーザーだけ読み書き可能。
-create policy "homes staff can read posts"
-on public.anniversary_posts for select
-to authenticated
-using ((auth.jwt() ->> 'email') like '%@homes-edu.com');
+-- 旧メール認証ポリシーを削除
+drop policy if exists "homes staff can read posts" on public.anniversary_posts;
+drop policy if exists "homes staff can create own posts" on public.anniversary_posts;
+drop policy if exists "homes staff can update own posts" on public.anniversary_posts;
+drop policy if exists "anniversary app can create posts" on public.anniversary_posts;
 
-create policy "homes staff can create own posts"
+-- 公開サイトから投稿情報だけを追加可能にする。
+-- 更新・削除は許可しない。管理操作はSupabase管理画面から行う。
+create policy "anniversary app can create posts"
 on public.anniversary_posts for insert
-to authenticated
-with check (
-  auth.uid() = user_id
-  and email = (auth.jwt() ->> 'email')
-  and email like '%@homes-edu.com'
-);
-
-create policy "homes staff can update own posts"
-on public.anniversary_posts for update
-to authenticated
-using (auth.uid() = user_id and email like '%@homes-edu.com')
-with check (auth.uid() = user_id and email like '%@homes-edu.com');
+to anon
+with check (is_public = false);

@@ -54,13 +54,16 @@
     <div class="auth-card">
       <img src="assets/homes-education-logo.png" alt="HOMES EDUCATION" class="auth-logo">
       <span class="auth-kicker">20TH ANNIVERSARY / STAFF ONLY</span>
-      <h2>最初の1回だけ、<br>会社メールで確認。</h2>
-      <p>認証後はこの端末でログイン状態を保持します。次回からはそのまま開けます。</p>
-      <label class="auth-label">会社メールアドレス
-        <input id="authEmail" type="email" inputmode="email" autocomplete="email" placeholder="name@homes-edu.com">
+      <h2>最初の1回だけ、<br>お名前と社員コード。</h2>
+      <p>一度入れば、この端末では次回からそのまま開けます。</p>
+      <label class="auth-label">お名前
+        <input id="authName" type="text" autocomplete="name" placeholder="例：吉岡">
       </label>
-      <button id="authStartBtn" class="auth-primary">認証メールを送る</button>
-      <small id="authHelp" class="auth-help">@homes-edu.com 宛に認証リンクを送ります。認証後はログイン状態を保持します。</small>
+      <label class="auth-label">社員共通コード
+        <input id="authCode" type="password" inputmode="numeric" autocomplete="one-time-code" placeholder="4〜6桁">
+      </label>
+      <button id="authStartBtn" class="auth-primary">20周年アプリをはじめる</button>
+      <small id="authHelp" class="auth-help">社員共通コードは社内で共有します。メール認証はありません。</small>
     </div>
   </section>
 

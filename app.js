@@ -103,100 +103,96 @@ function startOpeningSequence(){
 }
 
 const SB_CONFIG=window.HOMES_SUPABASE||{};
+const APP_CONFIG=window.HOMES_APP_CONFIG||{};
 const SUPABASE_READY=Boolean(SB_CONFIG.url && SB_CONFIG.publishableKey && window.supabase?.createClient);
-const sb=SUPABASE_READY ? window.supabase.createClient(SB_CONFIG.url,SB_CONFIG.publishableKey,{
-  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
-}) : null;
+const sb=SUPABASE_READY ? window.supabase.createClient(SB_CONFIG.url,SB_CONFIG.publishableKey) : null;
+const STAFF_LOGIN_KEY='homes20StaffLogin';
+const STAFF_CODE=String(APP_CONFIG.staffCode||'2027');
+const LOGIN_DAYS=Number(APP_CONFIG.loginDays||180);
+let currentStaff=null;
 
-function updateProfileFromEmail(email){
-  const btn=document.getElementById('profileBtn');
-  if(!btn || !email) return;
-  const local=email.split('@')[0]||'H';
-  const initials=local.replace(/[^a-zA-Z0-9]/g,'').slice(0,2).toUpperCase()||'H';
-  btn.querySelector('span').textContent=initials;
-  btn.title=email;
+function initialsFromName(name){
+  const clean=String(name||'H').trim();
+  if(!clean) return 'H';
+  const latin=clean.replace(/[^a-zA-Z0-9]/g,'');
+  return (latin ? latin.slice(0,2) : clean.slice(0,2)).toUpperCase();
 }
 
-function showApp(email){
+function updateProfile(name){
+  const btn=document.getElementById('profileBtn');
+  if(!btn || !name) return;
+  btn.querySelector('span').textContent=initialsFromName(name);
+  btn.title=`${name}さん`;
+}
+
+function saveStaffLogin(name){
+  const expiresAt=Date.now()+LOGIN_DAYS*86400000;
+  const data={name:String(name).trim(),expiresAt};
+  localStorage.setItem(STAFF_LOGIN_KEY,JSON.stringify(data));
+  currentStaff=data;
+  return data;
+}
+
+function loadStaffLogin(){
+  try{
+    const data=JSON.parse(localStorage.getItem(STAFF_LOGIN_KEY)||'null');
+    if(!data?.name || !data?.expiresAt || Date.now()>data.expiresAt){
+      localStorage.removeItem(STAFF_LOGIN_KEY);
+      return null;
+    }
+    currentStaff=data;
+    return data;
+  }catch(_e){
+    localStorage.removeItem(STAFF_LOGIN_KEY);
+    return null;
+  }
+}
+
+function showApp(name){
   const authGate=document.getElementById('authGate');
   authGate.classList.remove('show');
   authGate.setAttribute('aria-hidden','true');
   appShell.classList.add('ready');
-  updateProfileFromEmail(email);
+  updateProfile(name);
 }
 
 function showAuth(message=''){
   const authGate=document.getElementById('authGate');
   authGate.classList.add('show');
   authGate.setAttribute('aria-hidden','false');
-  if(message){
-    const help=document.getElementById('authHelp');
-    help.textContent=message;
-  }
-  setTimeout(()=>document.getElementById('authEmail')?.focus(),250);
+  const help=document.getElementById('authHelp');
+  help.classList.remove('error');
+  if(message) help.textContent=message;
+  setTimeout(()=>document.getElementById('authName')?.focus(),250);
 }
 
-async function resolveSupabaseSession(){
-  if(!sb) return null;
-  const {data,error}=await sb.auth.getSession();
-  if(error) return null;
-  const email=data?.session?.user?.email?.toLowerCase()||'';
-  if(email && email.endsWith('@homes-edu.com')) return data.session;
-  if(data?.session) await sb.auth.signOut();
-  return null;
-}
-
-async function enterApp(){
+function enterApp(){
   opening.classList.add('hide');
   setTimeout(()=>opening.style.display='none',700);
-  if(!SUPABASE_READY){
-    showAuth('SupabaseのProject URLとPublishable Keyを設定すると認証を開始できます。');
-    return;
-  }
-  const session=await resolveSupabaseSession();
-  if(session) showApp(session.user.email);
+  const login=loadStaffLogin();
+  if(login) showApp(login.name);
   else showAuth();
 }
 
 document.getElementById('enterApp').addEventListener('click',enterApp);
-document.getElementById('authStartBtn').addEventListener('click',async()=>{
-  const email=document.getElementById('authEmail').value.trim().toLowerCase();
+document.getElementById('authStartBtn').addEventListener('click',()=>{
+  const name=document.getElementById('authName').value.trim();
+  const code=document.getElementById('authCode').value.trim();
   const help=document.getElementById('authHelp');
-  const btn=document.getElementById('authStartBtn');
-  if(!/^[^\s@]+@homes-edu\.com$/.test(email)){
-    help.textContent='@homes-edu.com の会社メールアドレスを入力してください。';
+  if(!name){
+    help.textContent='お名前を入力してください。';
     help.classList.add('error');
     return;
   }
-  if(!SUPABASE_READY){
-    help.textContent='まだSupabase接続情報が入っていません。supabase-config.js を設定してください。';
+  if(code!==STAFF_CODE){
+    help.textContent='社員コードが違います。社内で共有されたコードを確認してください。';
     help.classList.add('error');
     return;
   }
   help.classList.remove('error');
-  btn.disabled=true;
-  btn.textContent='送信中…';
-  const redirectTo=window.location.href.split('#')[0].split('?')[0];
-  const {error}=await sb.auth.signInWithOtp({
-    email,
-    options:{emailRedirectTo:redirectTo,shouldCreateUser:true}
-  });
-  btn.disabled=false;
-  btn.textContent='認証メールを送る';
-  if(error){
-    help.textContent='認証メールを送れませんでした。少し時間をおいてもう一度お試しください。';
-    help.classList.add('error');
-    return;
-  }
-  help.textContent='認証メールを送りました。メール内のリンクを開くとログインできます。';
+  const login=saveStaffLogin(name);
+  showApp(login.name);
 });
-
-if(sb){
-  sb.auth.onAuthStateChange((_event,session)=>{
-    const email=session?.user?.email?.toLowerCase()||'';
-    if(email.endsWith('@homes-edu.com')) showApp(email);
-  });
-}
 
 startOpeningSequence();
 
@@ -272,16 +268,14 @@ function initUpload(){
       return;
     }
 
-    const {data:{session}}=await sb.auth.getSession();
-    const user=session?.user;
-    const email=user?.email?.toLowerCase()||'';
-    if(!user || !email.endsWith('@homes-edu.com')){
-      previewArea.insertAdjacentHTML('beforeend','<small class="upload-status error">ログイン情報を確認できません。再度ログインしてください。</small>');
+    const login=currentStaff||loadStaffLogin();
+    if(!login?.name){
+      previewArea.insertAdjacentHTML('beforeend','<small class="upload-status error">社員ログインを確認できません。トップ画面から入り直してください。</small>');
       return;
     }
 
     const t=document.getElementById('videoTitle').value.trim()||(selectedFile.type.startsWith('image/')?'無題の写真':'無題の動画');
-    const a=document.getElementById('videoAuthor').value.trim()||email.split('@')[0];
+    const a=document.getElementById('videoAuthor').value.trim()||login.name;
     const campus=document.getElementById('videoCampus').value.trim();
     const category=document.getElementById('videoCategory').value;
     const finalCandidate=document.getElementById('movieCandidate').checked;
@@ -291,8 +285,8 @@ function initUpload(){
     previewArea.querySelectorAll('.upload-status').forEach(el=>el.remove());
 
     const {error}=await sb.from('anniversary_posts').insert({
-      user_id:user.id,
-      email,
+      user_id:null,
+      email:null,
       title:t,
       author_name:a,
       campus,
