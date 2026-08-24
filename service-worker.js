@@ -1,4 +1,4 @@
-const CACHE_NAME='homes20-v56';
+const CACHE_NAME='homes20-v57';
 const ASSETS=[
   './','./index.html','./styles.css','./app.js','./manifest.webmanifest',
   './assets/homes-education-logo.png','./assets/homes-mark.png','./assets/rose.png',

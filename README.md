@@ -1,3 +1,9 @@
+# HOMES 20周年アプリ v5.7
+
+- 動画カードをタップしても反応しない不具合を修正。
+- Google Driveストリーミング用Edge Function URLの定義漏れを修正。
+- PWAキャッシュをv57へ更新。
+
 # HOMES 20周年アプリ v5.0
 
 - サムネイル: Supabase Storage
