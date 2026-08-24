@@ -34,60 +34,70 @@ function startAutoScroll(){
   if(autoScrollTimer) cancelAnimationFrame(autoScrollTimer);
   if(autoScrollResumeTimer) clearTimeout(autoScrollResumeTimer);
   if(feed._autoScrollCleanup) feed._autoScrollCleanup();
+
   let paused=false;
   let lastTime=0;
-  const pxPerSecond=33;
+  let position=feed.scrollLeft || 0;
+  const pxPerSecond=34;
   const getLoopWidth=()=> feed.scrollWidth/2;
-  const pause=()=>{paused=true;if(autoScrollResumeTimer) clearTimeout(autoScrollResumeTimer);};
-  const resumeSoon=(delay=1300)=>{
+
+  const pause=()=>{
+    paused=true;
     if(autoScrollResumeTimer) clearTimeout(autoScrollResumeTimer);
-    autoScrollResumeTimer=setTimeout(()=>{paused=false;lastTime=performance.now();},delay);
   };
+  const resumeSoon=(delay=1600)=>{
+    if(autoScrollResumeTimer) clearTimeout(autoScrollResumeTimer);
+    autoScrollResumeTimer=setTimeout(()=>{
+      position=feed.scrollLeft || position;
+      paused=false;
+      lastTime=performance.now();
+    },delay);
+  };
+
   const tick=(time)=>{
     if(!lastTime) lastTime=time;
-    const dt=Math.min(40,time-lastTime);
+    const dt=Math.min(50,time-lastTime);
     lastTime=time;
-    if(!paused){
+    if(!paused && !document.hidden){
       const loopWidth=getLoopWidth();
       if(loopWidth>0){
-        if(feed.scrollLeft >= loopWidth) feed.scrollLeft -= loopWidth;
-        feed.scrollLeft += pxPerSecond*(dt/1000);
+        position += pxPerSecond*(dt/1000);
+        if(position >= loopWidth) position -= loopWidth;
+        feed.scrollLeft=position;
       }
     }
     autoScrollTimer=requestAnimationFrame(tick);
   };
-  const onMouseEnter=()=>pause();
-  const onMouseLeave=()=>resumeSoon(500);
+
+  // iPhone Safariでは touch と pointer が二重発火しやすいため pointer 系だけを使う。
+  // フォーカスだけでは停止させない（タップ後にフォーカスが残って永久停止するのを防ぐ）。
   const onPointerDown=()=>pause();
   const onPointerUp=()=>resumeSoon();
-  const onPointerCancel=()=>resumeSoon();
-  const onTouchStart=()=>pause();
-  const onTouchEnd=()=>resumeSoon();
-  const onTouchCancel=()=>resumeSoon();
-  const onFocusIn=()=>pause();
-  const onFocusOut=()=>resumeSoon(500);
-  feed.addEventListener('mouseenter',onMouseEnter,{passive:true});
-  feed.addEventListener('mouseleave',onMouseLeave,{passive:true});
+  const onPointerCancel=()=>resumeSoon(500);
+  const onMouseEnter=()=>{ if(window.matchMedia('(hover:hover)').matches) pause(); };
+  const onMouseLeave=()=>{ if(window.matchMedia('(hover:hover)').matches) resumeSoon(400); };
+  const onVisibility=()=>{
+    if(document.hidden){ pause(); }
+    else { position=feed.scrollLeft || position; paused=false; lastTime=performance.now(); }
+  };
+
   feed.addEventListener('pointerdown',onPointerDown,{passive:true});
   feed.addEventListener('pointerup',onPointerUp,{passive:true});
   feed.addEventListener('pointercancel',onPointerCancel,{passive:true});
-  feed.addEventListener('touchstart',onTouchStart,{passive:true});
-  feed.addEventListener('touchend',onTouchEnd,{passive:true});
-  feed.addEventListener('touchcancel',onTouchCancel,{passive:true});
-  feed.addEventListener('focusin',onFocusIn);
-  feed.addEventListener('focusout',onFocusOut);
+  feed.addEventListener('mouseenter',onMouseEnter,{passive:true});
+  feed.addEventListener('mouseleave',onMouseLeave,{passive:true});
+  document.addEventListener('visibilitychange',onVisibility);
+
   feed._autoScrollCleanup=()=>{
-    feed.removeEventListener('mouseenter',onMouseEnter);
-    feed.removeEventListener('mouseleave',onMouseLeave);
     feed.removeEventListener('pointerdown',onPointerDown);
     feed.removeEventListener('pointerup',onPointerUp);
     feed.removeEventListener('pointercancel',onPointerCancel);
-    feed.removeEventListener('touchstart',onTouchStart);
-    feed.removeEventListener('touchend',onTouchEnd);
-    feed.removeEventListener('touchcancel',onTouchCancel);
-    feed.removeEventListener('focusin',onFocusIn);
-    feed.removeEventListener('focusout',onFocusOut);
+    feed.removeEventListener('mouseenter',onMouseEnter);
+    feed.removeEventListener('mouseleave',onMouseLeave);
+    document.removeEventListener('visibilitychange',onVisibility);
   };
+
+  position=0;
   feed.scrollLeft=0;
   autoScrollTimer=requestAnimationFrame(tick);
 }
