@@ -10,3 +10,10 @@
 - 動画は横向き撮影推奨
 
 初回設定は `GOOGLE-DRIVE-SETUP.md` を参照してください。
+
+
+## v5.1
+- iPhone/PWAで古いJSが残る問題を修正
+- Service Workerキャッシュをv51へ更新
+- app.js/styles.css/supabase-config.jsにキャッシュバスター付与
+- コアファイルはnetwork-firstに変更
