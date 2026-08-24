@@ -1,8 +1,9 @@
-# HOMES 20周年アプリ v4.5
+# HOMES 20周年アプリ v4.6
 
-- メール認証 / Resend / SMTP をやめました。
-- 初回だけ「お名前＋社員共通コード」で入るシンプル方式です。
-- ログイン状態は端末に180日保存します。
-- 共通コードは `supabase-config.js` の `staffCode` で変更できます（初期値: 2027）。
-- Supabaseは投稿情報の保存にだけ使います。
-- 既存のSupabaseプロジェクトでは `supabase-setup.sql` をSQL Editorで1回実行してください。
+## 変更点
+- iPhoneで入力欄をタップしたときに画面が自動拡大されにくいよう、フォーム文字サイズを16px以上に修正。
+- Supabaseの `permission denied for table anniversary_posts` 対応を強化。
+- `supabase-setup.sql` をSupabase SQL Editorで再実行してください。
+
+## 注意
+この段階でSupabaseに保存されるのは投稿情報です。写真・動画の原本を会社Google Driveへ保存する接続は次工程です。

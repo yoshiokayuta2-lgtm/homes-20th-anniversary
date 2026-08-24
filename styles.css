@@ -33,3 +33,10 @@
 .upload-status{display:block;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.5}
 .upload-status.success{background:#eef9f0;color:#215c2c}
 .upload-status.error{background:#fff0f0;color:#9a1f1f}
+
+/* v4.6 iPhone: prevent Safari auto-zoom when focusing form controls */
+@media (max-width: 760px){
+  input, select, textarea, button { -webkit-text-size-adjust: 100%; }
+  input, select, textarea { font-size:16px !important; }
+  .auth-label input { font-size:16px !important; }
+}

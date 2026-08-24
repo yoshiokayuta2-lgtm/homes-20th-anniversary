@@ -1,5 +1,5 @@
--- HOMES 20周年アプリ v4.5: シンプル社員ログイン版
--- Supabase SQL Editor で1回実行してください。
+-- HOMES 20周年アプリ v4.6: シンプル社員ログイン版
+-- Supabase SQL Editor でこのSQLを1回実行してください。
 -- メール認証は使わず、アプリ側の「お名前＋社員共通コード」で入ります。
 
 create table if not exists public.anniversary_posts (
@@ -21,15 +21,19 @@ alter table public.anniversary_posts alter column user_id drop not null;
 alter table public.anniversary_posts alter column email drop not null;
 alter table public.anniversary_posts enable row level security;
 
--- 旧メール認証ポリシーを削除
+-- 旧ポリシーを整理
 drop policy if exists "homes staff can read posts" on public.anniversary_posts;
 drop policy if exists "homes staff can create own posts" on public.anniversary_posts;
 drop policy if exists "homes staff can update own posts" on public.anniversary_posts;
 drop policy if exists "anniversary app can create posts" on public.anniversary_posts;
 
--- 公開サイトから投稿情報だけを追加可能にする。
--- 更新・削除は許可しない。管理操作はSupabase管理画面から行う。
+-- GitHub Pages上の公開アプリは publishable key では anon ロールとして接続するため、
+-- 非公開状態の投稿情報に限って INSERT を許可する。
 create policy "anniversary app can create posts"
-on public.anniversary_posts for insert
+on public.anniversary_posts
+for insert
 to anon
 with check (is_public = false);
+
+-- 念のため anon にテーブル INSERT 権限を付与
+grant insert on table public.anniversary_posts to anon;
