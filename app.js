@@ -516,7 +516,7 @@ async function loadActiveAnnouncement(){
     box.classList.toggle('is-unread',unread);
     box.setAttribute('role','button');box.setAttribute('tabindex','0');
     box.innerHTML=`<div class="announcement-top"><span>FROM 20TH OFFICE</span>${unread?'<em>NEW</em>':''}</div><b>${escapeHtml(a.title||'お知らせ')}</b>${a.body?`<small>${escapeHtml(a.body)}</small>`:''}<i>タップして確認</i>`;
-    const markRead=()=>{localStorage.setItem(readKey,'1');box.classList.remove('is-unread');box.querySelector('em')?.remove();box.querySelector('i')?.remove();};
+    const markRead=()=>{localStorage.setItem(readKey,'1');box.classList.remove('is-unread');box.hidden=true;};
     box.onclick=markRead;
     box.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();markRead();}};
   }catch(e){console.warn('announcement load failed',e);box.hidden=true;}
@@ -619,16 +619,25 @@ startOpeningSequence();
 
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=514').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=5146').catch(()=>{}));
 }
 
 // v5.13 - ホーム画面追加オンボーディング
 const INSTALL_SNOOZE_KEY='homes20InstallGuideSnoozeUntil';
+const INSTALL_COMPLETED_KEY='homes20InstallCompleted';
 let deferredInstallPrompt=null;
 const installDialog=document.getElementById('installDialog');
 
 function isStandaloneApp(){
   return window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone===true;
+}
+function isInstallCompleted(){
+  return isStandaloneApp() || localStorage.getItem(INSTALL_COMPLETED_KEY)==='1';
+}
+function syncInstallBadge(){
+  const btn=document.getElementById('profileBtn');
+  if(!btn) return;
+  btn.classList.toggle('install-pending',!isInstallCompleted());
 }
 function isIOSDevice(){
   return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
@@ -636,6 +645,8 @@ function isIOSDevice(){
 function isAndroidDevice(){ return /android/i.test(navigator.userAgent); }
 function setInstallState(){
   const standalone=isStandaloneApp();
+  if(standalone) localStorage.setItem(INSTALL_COMPLETED_KEY,'1');
+  syncInstallBadge();
   const ios=isIOSDevice();
   const android=isAndroidDevice();
   document.getElementById('installStandalone').hidden=!standalone;
@@ -664,7 +675,8 @@ function closeInstallGuide(snooze=false){
   if(installDialog?.open) installDialog.close();
 }
 function scheduleInstallOnboarding(){
-  if(isStandaloneApp() || !installDialog) return;
+  syncInstallBadge();
+  if(isInstallCompleted() || !installDialog) return;
   const snoozeUntil=Number(localStorage.getItem(INSTALL_SNOOZE_KEY)||0);
   if(Date.now()<snoozeUntil) return;
   setTimeout(()=>{ if(!isStandaloneApp()) openInstallGuide(); },900);
@@ -676,6 +688,8 @@ window.addEventListener('beforeinstallprompt',e=>{
 });
 window.addEventListener('appinstalled',()=>{
   deferredInstallPrompt=null;
+  localStorage.setItem(INSTALL_COMPLETED_KEY,'1');
+  syncInstallBadge();
   localStorage.removeItem(INSTALL_SNOOZE_KEY);
   trackActivity('install_completed',{source:'browser_event'});
   if(installDialog?.open) installDialog.close();
@@ -692,6 +706,9 @@ document.getElementById('installCloseBtn')?.addEventListener('click',()=>closeIn
 document.getElementById('installLaterBtn')?.addEventListener('click',()=>closeInstallGuide(true));
 document.getElementById('installDoneBtn')?.addEventListener('click',()=>closeInstallGuide(false));
 document.getElementById('profileBtn')?.addEventListener('click',openInstallGuide);
+syncInstallBadge();
+window.addEventListener('pageshow',()=>syncInstallBadge());
+document.addEventListener('visibilitychange',()=>{if(!document.hidden) syncInstallBadge();});
 
 const dialog=document.getElementById('screenDialog');
 const title=document.getElementById('dialogTitle');
