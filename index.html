@@ -70,7 +70,10 @@
   <div class="app-shell app-hidden" id="appShell">
     <header class="topbar">
       <img src="assets/homes-education-logo.png" alt="HOMES EDUCATION" class="top-logo-full">
-      <button class="profile-btn" id="profileBtn" aria-label="プロフィール・アプリ設定"><span>YY</span></button>
+      <div class="topbar-actions">
+        <button class="announcement-history-btn" id="announcementHistoryBtn" aria-label="お知らせを見る">お知らせ<span id="announcementUnreadDot" hidden></span></button>
+        <button class="profile-btn" id="profileBtn" aria-label="プロフィール・アプリ設定"><span>YY</span></button>
+      </div>
     </header>
 
     <main id="mainContent">
@@ -275,6 +278,16 @@
     </section>
   </div>
 
+  <dialog id="announcementDialog" class="announcement-dialog">
+    <div class="announcement-dialog-card">
+      <button id="announcementCloseBtn" class="announcement-dialog-close" aria-label="閉じる">×</button>
+      <span class="announcement-dialog-kicker">FROM 20TH OFFICE</span>
+      <h2>お知らせ</h2>
+      <p class="announcement-dialog-lead">管理側で公開中のお知らせは、既読後もここから見直せます。</p>
+      <div id="announcementHistoryList" class="announcement-history-list"></div>
+    </div>
+  </dialog>
+
   <dialog id="installDialog" class="install-dialog">
     <div class="install-card">
       <button id="installCloseBtn" class="install-close" aria-label="閉じる">×</button>
@@ -317,8 +330,8 @@
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=5146"></script>
-  <script src="history-data.js?v=5146"></script>
-  <script src="app.js?v=5146"></script>
+  <script src="supabase-config.js?v=5147"></script>
+  <script src="history-data.js?v=5147"></script>
+  <script src="app.js?v=5147"></script>
 </body>
 </html>

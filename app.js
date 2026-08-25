@@ -499,28 +499,66 @@ function trackAppOpen(name){
   trackActivity('app_open',{standalone,userAgent:navigator.userAgent.slice(0,180)});
   if(standalone) trackActivity('standalone_open',{});
 }
-async function loadActiveAnnouncement(){
+const announcementDialog=document.getElementById('announcementDialog');
+let activeAnnouncements=[];
+function announcementReadKey(id){return 'homes20AnnouncementRead:'+id;}
+function isAnnouncementRead(id){return localStorage.getItem(announcementReadKey(id))==='1';}
+function markAnnouncementRead(id){if(id)localStorage.setItem(announcementReadKey(id),'1');}
+function syncAnnouncementUnreadDot(){
+  const dot=document.getElementById('announcementUnreadDot');
+  if(!dot)return;
+  dot.hidden=!activeAnnouncements.some(a=>!isAnnouncementRead(a.id));
+}
+async function fetchActiveAnnouncements(){
+  const edge=(window.HOMES_SUPABASE?.url||'').replace(/\/$/,'')+'/functions/v1/drive-init-upload';
+  if(!window.HOMES_SUPABASE?.url) return [];
+  const res=await fetch(edge,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'public-announcements'}),cache:'no-store'});
+  const out=await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(out.error||`HTTP ${res.status}`);
+  return Array.isArray(out.announcements)?out.announcements:[];
+}
+function renderAnnouncementHistory(){
+  const list=document.getElementById('announcementHistoryList');
+  if(!list)return;
+  if(!activeAnnouncements.length){list.innerHTML='<div class="announcement-history-empty">現在公開中のお知らせはありません。</div>';return;}
+  list.innerHTML=activeAnnouncements.map(a=>{
+    const unread=!isAnnouncementRead(a.id);
+    const date=a.created_at?new Date(a.created_at).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'}):'';
+    return `<button class="announcement-history-item ${unread?'is-unread':''}" data-announcement-id="${escapeHtml(String(a.id||''))}"><div class="announcement-history-head"><b>${escapeHtml(a.title||'お知らせ')}</b>${unread?'<em>NEW</em>':''}</div>${a.body?`<p>${escapeHtml(a.body)}</p>`:''}<small>${escapeHtml(date)}</small></button>`;
+  }).join('');
+  list.querySelectorAll('[data-announcement-id]').forEach(btn=>btn.addEventListener('click',()=>{
+    markAnnouncementRead(btn.dataset.announcementId);
+    renderAnnouncementHistory();
+    syncAnnouncementUnreadDot();
+    loadActiveAnnouncement(false);
+  }));
+}
+async function openAnnouncementHistory(){
+  try{activeAnnouncements=await fetchActiveAnnouncements();}catch(e){console.warn('announcement history load failed',e);}
+  renderAnnouncementHistory();
+  syncAnnouncementUnreadDot();
+  if(announcementDialog&&!announcementDialog.open)announcementDialog.showModal();
+}
+async function loadActiveAnnouncement(refresh=true){
   const box=document.getElementById('adminAnnouncement');
   if(!box) return;
   try{
-    const edge=(window.HOMES_SUPABASE?.url||'').replace(/\/$/,'')+'/functions/v1/drive-init-upload';
-    if(!window.HOMES_SUPABASE?.url){box.hidden=true;return;}
-    const res=await fetch(edge,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'public-active-announcement'}),cache:'no-store'});
-    const out=await res.json().catch(()=>({}));
-    if(!res.ok) throw new Error(out.error||`HTTP ${res.status}`);
-    const a=out.announcement;
+    if(refresh) activeAnnouncements=await fetchActiveAnnouncements();
+    const a=activeAnnouncements.find(x=>!isAnnouncementRead(x.id))||null;
+    syncAnnouncementUnreadDot();
     if(!a){box.hidden=true;return;}
-    const readKey='homes20AnnouncementRead:'+a.id;
-    const unread=localStorage.getItem(readKey)!=='1';
     box.hidden=false;
-    box.classList.toggle('is-unread',unread);
+    box.classList.add('is-unread');
     box.setAttribute('role','button');box.setAttribute('tabindex','0');
-    box.innerHTML=`<div class="announcement-top"><span>FROM 20TH OFFICE</span>${unread?'<em>NEW</em>':''}</div><b>${escapeHtml(a.title||'お知らせ')}</b>${a.body?`<small>${escapeHtml(a.body)}</small>`:''}<i>タップして確認</i>`;
-    const markRead=()=>{localStorage.setItem(readKey,'1');box.classList.remove('is-unread');box.hidden=true;};
+    box.innerHTML=`<div class="announcement-top"><span>FROM 20TH OFFICE</span><em>NEW</em></div><b>${escapeHtml(a.title||'お知らせ')}</b>${a.body?`<small>${escapeHtml(a.body)}</small>`:''}<i>タップして読む</i>`;
+    const markRead=()=>{markAnnouncementRead(a.id);box.hidden=true;syncAnnouncementUnreadDot();};
     box.onclick=markRead;
     box.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();markRead();}};
   }catch(e){console.warn('announcement load failed',e);box.hidden=true;}
 }
+document.getElementById('announcementHistoryBtn')?.addEventListener('click',openAnnouncementHistory);
+document.getElementById('announcementCloseBtn')?.addEventListener('click',()=>announcementDialog?.close());
+announcementDialog?.addEventListener('click',e=>{if(e.target===announcementDialog)announcementDialog.close();});
 
 loadSupabasePosts();
 const STAFF_LOGIN_KEY='homes20StaffLogin';
@@ -565,11 +603,20 @@ function loadStaffLogin(){
   }
 }
 
+function resetAppToTop(){
+  document.activeElement?.blur?.();
+  const go=()=>{window.scrollTo({top:0,left:0,behavior:'auto'});document.documentElement.scrollTop=0;document.body.scrollTop=0;};
+  go();
+  requestAnimationFrame(go);
+  setTimeout(go,80);
+  setTimeout(go,350);
+}
 function showApp(name){
   const authGate=document.getElementById('authGate');
   authGate.classList.remove('show');
   authGate.setAttribute('aria-hidden','true');
   appShell.classList.add('ready');
+  resetAppToTop();
   updateProfile(name);
   recordLoginBonus(name);
   trackAppOpen(name);
@@ -619,7 +666,7 @@ startOpeningSequence();
 
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=5146').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=5147').catch(()=>{}));
 }
 
 // v5.13 - ホーム画面追加オンボーディング

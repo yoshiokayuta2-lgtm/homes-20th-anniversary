@@ -65,16 +65,17 @@ Deno.serve(async(req)=>{
     }
     if(req.method!=='POST')return new Response('Method not allowed',{status:405,headers});
     const body=await req.json();const action=body.action||'upload-init';
-    if(action==='public-active-announcement'){
-      const r=await rest('/rest/v1/anniversary_announcements?select=id,title,body,created_at,start_at,end_at,is_active&is_active=eq.true&order=created_at.desc&limit=20');
+    if(action==='public-active-announcement'||action==='public-announcements'){
+      const r=await rest('/rest/v1/anniversary_announcements?select=id,title,body,created_at,start_at,end_at,is_active&is_active=eq.true&order=created_at.desc&limit=200');
       if(!r.ok){const detail=await r.text().catch(()=> '');throw new Error(`お知らせを取得できません (${r.status})${detail?`：${detail.slice(0,400)}`:''}`);}
       const rows=await r.json();
       const now=Date.now();
-      const active=(rows||[]).find((x:any)=>{
+      const active=(rows||[]).filter((x:any)=>{
         const start=x.start_at?Date.parse(x.start_at):null,end=x.end_at?Date.parse(x.end_at):null;
         return (!start||start<=now)&&(!end||end>=now);
-      })||null;
-      return json({announcement:active},200,headers);
+      });
+      if(action==='public-announcements')return json({announcements:active},200,headers);
+      return json({announcement:active[0]||null},200,headers);
     }
     if(action.startsWith('admin-')){
       requireAdmin(String(body.adminCode||''));
