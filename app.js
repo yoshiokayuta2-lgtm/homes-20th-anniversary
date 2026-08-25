@@ -525,6 +525,7 @@ function showApp(name){
   appShell.classList.add('ready');
   updateProfile(name);
   recordLoginBonus(name);
+  scheduleInstallOnboarding();
 }
 
 function showAuth(message=''){
@@ -567,9 +568,79 @@ document.getElementById('authStartBtn').addEventListener('click',()=>{
 
 startOpeningSequence();
 
+
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=513').catch(()=>{}));
 }
+
+// v5.13 - ホーム画面追加オンボーディング
+const INSTALL_SNOOZE_KEY='homes20InstallGuideSnoozeUntil';
+let deferredInstallPrompt=null;
+const installDialog=document.getElementById('installDialog');
+
+function isStandaloneApp(){
+  return window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone===true;
+}
+function isIOSDevice(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+}
+function isAndroidDevice(){ return /android/i.test(navigator.userAgent); }
+function setInstallState(){
+  const standalone=isStandaloneApp();
+  const ios=isIOSDevice();
+  const android=isAndroidDevice();
+  document.getElementById('installStandalone').hidden=!standalone;
+  document.getElementById('installIos').hidden=standalone||!ios;
+  document.getElementById('installAndroid').hidden=standalone||!android;
+  document.getElementById('installOther').hidden=standalone||ios||android;
+  const nativeBtn=document.getElementById('nativeInstallBtn');
+  if(nativeBtn){
+    nativeBtn.hidden=!deferredInstallPrompt;
+    if(android && !deferredInstallPrompt){
+      const state=document.getElementById('installAndroid');
+      const p=state?.querySelector('p');
+      if(p) p.textContent='ブラウザのメニューから「アプリをインストール」または「ホーム画面に追加」を選択してください。';
+    }
+  }
+  document.getElementById('installLaterBtn').hidden=standalone;
+  document.getElementById('installDoneBtn').textContent=standalone?'閉じる':'わかりました';
+}
+function openInstallGuide(){
+  if(!installDialog) return;
+  setInstallState();
+  if(!installDialog.open) installDialog.showModal();
+}
+function closeInstallGuide(snooze=false){
+  if(snooze){ localStorage.setItem(INSTALL_SNOOZE_KEY,String(Date.now()+24*60*60*1000)); }
+  if(installDialog?.open) installDialog.close();
+}
+function scheduleInstallOnboarding(){
+  if(isStandaloneApp() || !installDialog) return;
+  const snoozeUntil=Number(localStorage.getItem(INSTALL_SNOOZE_KEY)||0);
+  if(Date.now()<snoozeUntil) return;
+  setTimeout(()=>{ if(!isStandaloneApp()) openInstallGuide(); },900);
+}
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  setInstallState();
+});
+window.addEventListener('appinstalled',()=>{
+  deferredInstallPrompt=null;
+  localStorage.removeItem(INSTALL_SNOOZE_KEY);
+  if(installDialog?.open) installDialog.close();
+});
+document.getElementById('nativeInstallBtn')?.addEventListener('click',async()=>{
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice.catch(()=>null);
+  deferredInstallPrompt=null;
+  setInstallState();
+});
+document.getElementById('installCloseBtn')?.addEventListener('click',()=>closeInstallGuide(true));
+document.getElementById('installLaterBtn')?.addEventListener('click',()=>closeInstallGuide(true));
+document.getElementById('installDoneBtn')?.addEventListener('click',()=>closeInstallGuide(false));
+document.getElementById('profileBtn')?.addEventListener('click',openInstallGuide);
 
 const dialog=document.getElementById('screenDialog');
 const title=document.getElementById('dialogTitle');

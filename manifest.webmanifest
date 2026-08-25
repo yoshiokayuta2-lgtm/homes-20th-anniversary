@@ -1,14 +1,17 @@
 {
   "name": "HOMES EDUCATION 20th Anniversary",
   "short_name": "HOMES 20th",
-  "start_url": "./index.html",
+  "description": "HOMES EDUCATION 20周年 社員アプリ",
+  "id": "./index.html",
+  "start_url": "./index.html?source=homescreen",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f0e8",
-  "theme_color": "#c92a22",
+  "background_color": "#f7f2ea",
+  "theme_color": "#c31f1f",
   "lang": "ja",
   "icons": [
-    {"src":"assets/app-icon-192.png","sizes":"192x192","type":"image/png"},
-    {"src":"assets/app-icon-512.png","sizes":"512x512","type":"image/png"}
+    {"src":"assets/app-icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"assets/app-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
+    {"src":"assets/app-icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
   ]
 }

@@ -8,12 +8,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="HOMES 20th" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="assets/app-icon-192.png" />
+  <link rel="manifest" href="manifest.webmanifest?v=513" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/app-icon-180.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=58" />
+  <link rel="stylesheet" href="styles.css?v=513" />
 </head>
 <body>
   <svg class="svg-sprite" aria-hidden="true">
@@ -70,7 +70,7 @@
   <div class="app-shell app-hidden" id="appShell">
     <header class="topbar">
       <img src="assets/homes-education-logo.png" alt="HOMES EDUCATION" class="top-logo-full">
-      <button class="profile-btn" id="profileBtn" aria-label="プロフィール"><span>YY</span></button>
+      <button class="profile-btn" id="profileBtn" aria-label="プロフィール・アプリ設定"><span>YY</span></button>
     </header>
 
     <main id="mainContent">
@@ -273,9 +273,50 @@
     </section>
   </div>
 
+  <dialog id="installDialog" class="install-dialog">
+    <div class="install-card">
+      <button id="installCloseBtn" class="install-close" aria-label="閉じる">×</button>
+      <div class="install-icon-wrap"><img src="assets/app-icon-180.png" alt="20周年アプリアイコン"></div>
+      <span class="install-kicker">20TH ANNIVERSARY APP</span>
+      <h2>20周年アプリを、<br>ホーム画面へ。</h2>
+      <p class="install-lead">一度追加すれば、次回からブラウザを探さずアイコンをタップするだけで開けます。</p>
+
+      <div id="installStandalone" class="install-state installed-state" hidden>
+        <span class="installed-check">✓</span>
+        <div><b>ホーム画面から起動中です</b><small>20周年アプリとして利用できています。</small></div>
+      </div>
+
+      <div id="installIos" class="install-state" hidden>
+        <span class="install-device-label">iPhone</span>
+        <div class="install-steps">
+          <div><i>1</i><span>Safari下部の <b>共有</b> <em>□↑</em> をタップ</span></div>
+          <div><i>2</i><span><b>「ホーム画面に追加」</b> を選択</span></div>
+          <div><i>3</i><span>右上の <b>「追加」</b> をタップ</span></div>
+        </div>
+        <p class="install-note">※ iPhoneの仕様上、最後の追加操作だけは本人の操作が必要です。</p>
+      </div>
+
+      <div id="installAndroid" class="install-state" hidden>
+        <span class="install-device-label">Android</span>
+        <p>対応端末では、このボタンからアプリとして追加できます。</p>
+        <button id="nativeInstallBtn" class="install-primary">アプリをインストール</button>
+      </div>
+
+      <div id="installOther" class="install-state" hidden>
+        <p>ブラウザのメニューから「アプリをインストール」または「ホーム画面に追加」を選択してください。</p>
+      </div>
+
+      <div class="install-actions">
+        <button id="installDoneBtn" class="install-primary">わかりました</button>
+        <button id="installLaterBtn" class="install-secondary">あとで</button>
+      </div>
+      <small class="install-reopen">右上のプロフィールボタンから、いつでもこの案内を開けます。</small>
+    </div>
+  </dialog>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=58"></script>
-  <script src="history-data.js?v=58"></script>
-  <script src="app.js?v=58"></script>
+  <script src="supabase-config.js?v=513"></script>
+  <script src="history-data.js?v=513"></script>
+  <script src="app.js?v=513"></script>
 </body>
 </html>
