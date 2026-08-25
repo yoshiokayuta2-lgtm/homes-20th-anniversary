@@ -66,3 +66,9 @@ Supabase > Edge Functions > Secrets に `ADMIN_MODE_CODE` を追加し、管理�
 SQL追加はありません。
 
 管理画面URL: `https://yoshiokayuta2-lgtm.github.io/homes-20th-anniversary/admin.html`
+
+
+## v5.10
+- 管理者モードの投稿一覧取得を、一般画面と同じSupabase読み取り経路に変更。
+- Edge Functionの管理者APIは更新・削除専用に継続。
+- admin.html / ride-admin.html をService Workerでnetwork-firstにして更新反映を安定化。
