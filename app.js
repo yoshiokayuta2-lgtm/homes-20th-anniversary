@@ -500,7 +500,11 @@ function trackAppOpen(name){
   if(standalone) trackActivity('standalone_open',{});
 }
 const announcementDialog=document.getElementById('announcementDialog');
+const announcementDetailDialog=document.getElementById('announcementDetailDialog');
 let activeAnnouncements=[];
+let openedAnnouncement=null;
+let announcementPollTimer=null;
+let announcementRealtimeChannel=null;
 function announcementReadKey(id){return 'homes20AnnouncementRead:'+id;}
 function isAnnouncementRead(id){return localStorage.getItem(announcementReadKey(id))==='1';}
 function markAnnouncementRead(id){if(id)localStorage.setItem(announcementReadKey(id),'1');}
@@ -517,21 +521,49 @@ async function fetchActiveAnnouncements(){
   if(!res.ok) throw new Error(out.error||`HTTP ${res.status}`);
   return Array.isArray(out.announcements)?out.announcements:[];
 }
+function announcementDate(a){
+  return a?.created_at?new Date(a.created_at).toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric'}):'';
+}
 function renderAnnouncementHistory(){
   const list=document.getElementById('announcementHistoryList');
   if(!list)return;
   if(!activeAnnouncements.length){list.innerHTML='<div class="announcement-history-empty">現在公開中のお知らせはありません。</div>';return;}
   list.innerHTML=activeAnnouncements.map(a=>{
     const unread=!isAnnouncementRead(a.id);
-    const date=a.created_at?new Date(a.created_at).toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'}):'';
-    return `<button class="announcement-history-item ${unread?'is-unread':''}" data-announcement-id="${escapeHtml(String(a.id||''))}"><div class="announcement-history-head"><b>${escapeHtml(a.title||'お知らせ')}</b>${unread?'<em>NEW</em>':''}</div>${a.body?`<p>${escapeHtml(a.body)}</p>`:''}<small>${escapeHtml(date)}</small></button>`;
+    const body=String(a.body||'').trim();
+    const excerpt=body.length>58?body.slice(0,58)+'…':body;
+    return `<button class="announcement-history-item ${unread?'is-unread':''}" data-announcement-id="${escapeHtml(String(a.id||''))}"><div class="announcement-history-head"><b>${escapeHtml(a.title||'お知らせ')}</b>${unread?'<em>NEW</em>':''}</div>${excerpt?`<p>${escapeHtml(excerpt)}</p>`:''}<small>${escapeHtml(announcementDate(a))}</small></button>`;
   }).join('');
   list.querySelectorAll('[data-announcement-id]').forEach(btn=>btn.addEventListener('click',()=>{
-    markAnnouncementRead(btn.dataset.announcementId);
-    renderAnnouncementHistory();
-    syncAnnouncementUnreadDot();
-    loadActiveAnnouncement(false);
+    const a=activeAnnouncements.find(x=>String(x.id)===String(btn.dataset.announcementId));
+    if(a) openAnnouncementDetail(a,{fromHistory:true});
   }));
+}
+function renderAnnouncementDetail(a){
+  if(!announcementDetailDialog||!a)return;
+  const title=document.getElementById('announcementDetailTitle');
+  const body=document.getElementById('announcementDetailBody');
+  const date=document.getElementById('announcementDetailDate');
+  if(title)title.textContent=a.title||'お知らせ';
+  if(body)body.textContent=a.body||'';
+  if(date)date.textContent=announcementDate(a);
+}
+function openAnnouncementDetail(a,{fromHistory=false}={}){
+  if(!a||!announcementDetailDialog)return;
+  openedAnnouncement={...a,fromHistory,wasUnread:!isAnnouncementRead(a.id)};
+  renderAnnouncementDetail(a);
+  if(announcementDialog?.open) announcementDialog.close();
+  if(!announcementDetailDialog.open) announcementDetailDialog.showModal();
+}
+function closeAnnouncementDetail(){
+  if(openedAnnouncement?.id && openedAnnouncement.wasUnread){
+    markAnnouncementRead(openedAnnouncement.id);
+  }
+  openedAnnouncement=null;
+  if(announcementDetailDialog?.open) announcementDetailDialog.close();
+  renderAnnouncementHistory();
+  syncAnnouncementUnreadDot();
+  loadActiveAnnouncement(false);
 }
 async function openAnnouncementHistory(){
   try{activeAnnouncements=await fetchActiveAnnouncements();}catch(e){console.warn('announcement history load failed',e);}
@@ -550,15 +582,47 @@ async function loadActiveAnnouncement(refresh=true){
     box.hidden=false;
     box.classList.add('is-unread');
     box.setAttribute('role','button');box.setAttribute('tabindex','0');
-    box.innerHTML=`<div class="announcement-top"><span>FROM 20TH OFFICE</span><em>NEW</em></div><b>${escapeHtml(a.title||'お知らせ')}</b>${a.body?`<small>${escapeHtml(a.body)}</small>`:''}<i>タップして読む</i>`;
-    const markRead=()=>{markAnnouncementRead(a.id);box.hidden=true;syncAnnouncementUnreadDot();};
-    box.onclick=markRead;
-    box.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();markRead();}};
+    const body=String(a.body||'').trim();
+    const excerpt=body.length>76?body.slice(0,76)+'…':body;
+    box.innerHTML=`<div class="announcement-top"><span>FROM 20TH OFFICE</span><em>NEW</em></div><b>${escapeHtml(a.title||'お知らせ')}</b>${excerpt?`<small>${escapeHtml(excerpt)}</small>`:''}<i>タップして読む</i>`;
+    const open=()=>openAnnouncementDetail(a);
+    box.onclick=open;
+    box.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
   }catch(e){console.warn('announcement load failed',e);box.hidden=true;}
+}
+async function refreshAnnouncementsLive(){
+  try{
+    const next=await fetchActiveAnnouncements();
+    const before=JSON.stringify(activeAnnouncements.map(a=>[a.id,a.updated_at||a.created_at,a.title,a.body,a.is_active]));
+    const after=JSON.stringify(next.map(a=>[a.id,a.updated_at||a.created_at,a.title,a.body,a.is_active]));
+    activeAnnouncements=next;
+    if(before!==after){
+      renderAnnouncementHistory();
+      syncAnnouncementUnreadDot();
+      loadActiveAnnouncement(false);
+    }
+  }catch(e){console.warn('announcement live refresh skipped',e);}
+}
+function startAnnouncementLiveUpdates(){
+  if(announcementPollTimer)clearInterval(announcementPollTimer);
+  announcementPollTimer=setInterval(refreshAnnouncementsLive,12000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshAnnouncementsLive();});
+  window.addEventListener('focus',refreshAnnouncementsLive);
+  if(sb?.channel && !announcementRealtimeChannel){
+    try{
+      announcementRealtimeChannel=sb.channel('homes20-public-announcements')
+        .on('postgres_changes',{event:'*',schema:'public',table:'anniversary_announcements'},()=>refreshAnnouncementsLive())
+        .subscribe();
+    }catch(e){console.warn('announcement realtime unavailable; polling fallback active',e);}
+  }
 }
 document.getElementById('announcementHistoryBtn')?.addEventListener('click',openAnnouncementHistory);
 document.getElementById('announcementCloseBtn')?.addEventListener('click',()=>announcementDialog?.close());
 announcementDialog?.addEventListener('click',e=>{if(e.target===announcementDialog)announcementDialog.close();});
+document.getElementById('announcementDetailCloseBtn')?.addEventListener('click',closeAnnouncementDetail);
+announcementDetailDialog?.addEventListener('click',e=>{if(e.target===announcementDetailDialog)closeAnnouncementDetail();});
+announcementDetailDialog?.addEventListener('cancel',e=>{e.preventDefault();closeAnnouncementDetail();});
+startAnnouncementLiveUpdates();
 
 loadSupabasePosts();
 const STAFF_LOGIN_KEY='homes20StaffLogin';
@@ -605,12 +669,22 @@ function loadStaffLogin(){
 
 function resetAppToTop(){
   document.activeElement?.blur?.();
-  const go=()=>{window.scrollTo({top:0,left:0,behavior:'auto'});document.documentElement.scrollTop=0;document.body.scrollTop=0;};
+  if('scrollRestoration' in history) history.scrollRestoration='manual';
+  const go=()=>{
+    window.scrollTo(0,0);
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    document.getElementById('mainContent')?.scrollTo?.(0,0);
+  };
   go();
-  requestAnimationFrame(go);
-  setTimeout(go,80);
-  setTimeout(go,350);
+  requestAnimationFrame(()=>requestAnimationFrame(go));
+  [80,220,450,800,1200].forEach(ms=>setTimeout(go,ms));
+  if(window.visualViewport){
+    const onResize=()=>go();
+    window.visualViewport.addEventListener('resize',onResize,{once:true});
+  }
 }
+
 function showApp(name){
   const authGate=document.getElementById('authGate');
   authGate.classList.remove('show');
@@ -666,7 +740,7 @@ startOpeningSequence();
 
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=5147').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=5148').catch(()=>{}));
 }
 
 // v5.13 - ホーム画面追加オンボーディング
