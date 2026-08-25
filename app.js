@@ -501,12 +501,25 @@ function trackAppOpen(name){
 }
 async function loadActiveAnnouncement(){
   const box=document.getElementById('adminAnnouncement');
-  if(!box||!sb) return;
+  if(!box) return;
   try{
-    const {data,error}=await sb.from('anniversary_announcements').select('id,title,body,created_at').order('created_at',{ascending:false}).limit(1);
-    if(error||!data?.length){box.hidden=true;return;}
-    const a=data[0];box.hidden=false;box.innerHTML=`<span>FROM 20TH OFFICE</span><b>${escapeHtml(a.title||'お知らせ')}</b>${a.body?`<small>${escapeHtml(a.body)}</small>`:''}`;
-  }catch(_e){box.hidden=true;}
+    const edge=(window.HOMES_SUPABASE?.url||'').replace(/\/$/,'')+'/functions/v1/drive-init-upload';
+    if(!window.HOMES_SUPABASE?.url){box.hidden=true;return;}
+    const res=await fetch(edge,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'public-active-announcement'}),cache:'no-store'});
+    const out=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(out.error||`HTTP ${res.status}`);
+    const a=out.announcement;
+    if(!a){box.hidden=true;return;}
+    const readKey='homes20AnnouncementRead:'+a.id;
+    const unread=localStorage.getItem(readKey)!=='1';
+    box.hidden=false;
+    box.classList.toggle('is-unread',unread);
+    box.setAttribute('role','button');box.setAttribute('tabindex','0');
+    box.innerHTML=`<div class="announcement-top"><span>FROM 20TH OFFICE</span>${unread?'<em>NEW</em>':''}</div><b>${escapeHtml(a.title||'お知らせ')}</b>${a.body?`<small>${escapeHtml(a.body)}</small>`:''}<i>タップして確認</i>`;
+    const markRead=()=>{localStorage.setItem(readKey,'1');box.classList.remove('is-unread');box.querySelector('em')?.remove();box.querySelector('i')?.remove();};
+    box.onclick=markRead;
+    box.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();markRead();}};
+  }catch(e){console.warn('announcement load failed',e);box.hidden=true;}
 }
 
 loadSupabasePosts();

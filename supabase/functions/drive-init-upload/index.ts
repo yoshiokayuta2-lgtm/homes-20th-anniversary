@@ -3,7 +3,20 @@ const VIDEO_FOLDER_ID = Deno.env.get('DRIVE_VIDEO_FOLDER_ID') || '1sKC3oue_BBMoR
 const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'https://yoshiokayuta2-lgtm.github.io';
 const ADMIN_MODE_CODE = Deno.env.get('ADMIN_MODE_CODE') || '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
-const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+function getSupabaseSecretKey() {
+  const modern = Deno.env.get('SUPABASE_SECRET_KEYS') || '';
+  if (modern) {
+    try {
+      const keys = JSON.parse(modern);
+      const key = keys?.default || Object.values(keys || {})[0];
+      if (typeof key === 'string' && key) return key;
+    } catch (e) {
+      console.error('SUPABASE_SECRET_KEYS parse error', e);
+    }
+  }
+  return Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+}
+const SERVICE_KEY = getSupabaseSecretKey();
 
 function cors(origin: string | null) {
   const allow = origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN;
@@ -27,7 +40,15 @@ async function getGoogleAccessToken() {
   const out=await res.json();if(!res.ok||!out.access_token)throw new Error('Google Drive のアクセストークンを取得できませんでした。');return out.access_token as string;
 }
 function serviceHeaders(extra:Record<string,string>={}){return {'apikey':SERVICE_KEY,'authorization':`Bearer ${SERVICE_KEY}`,...extra};}
-async function rest(path:string,init:RequestInit={}){if(!SUPABASE_URL||!SERVICE_KEY)throw new Error('Supabase管理接続を利用できません。');return fetch(`${SUPABASE_URL}${path}`,{...init,headers:{...serviceHeaders(),...(init.headers||{})}})}
+async function rest(path:string,init:RequestInit={}){
+  if(!SUPABASE_URL||!SERVICE_KEY)throw new Error('Supabase管理接続を利用できません。');
+  const r=await fetch(`${SUPABASE_URL}${path}`,{...init,headers:{...serviceHeaders(),...(init.headers||{})}});
+  if(!r.ok){
+    const detail=await r.clone().text().catch(()=> '');
+    console.error(`Supabase REST ${r.status} ${path}`, detail);
+  }
+  return r;
+}
 function previewObjectPath(url:string){try{const u=new URL(url);const marker='/storage/v1/object/public/anniversary-previews/';const i=u.pathname.indexOf(marker);return i>=0?decodeURIComponent(u.pathname.slice(i+marker.length)):''}catch{return ''}}
 
 Deno.serve(async(req)=>{
@@ -44,6 +65,17 @@ Deno.serve(async(req)=>{
     }
     if(req.method!=='POST')return new Response('Method not allowed',{status:405,headers});
     const body=await req.json();const action=body.action||'upload-init';
+    if(action==='public-active-announcement'){
+      const r=await rest('/rest/v1/anniversary_announcements?select=id,title,body,created_at,start_at,end_at,is_active&is_active=eq.true&order=created_at.desc&limit=20');
+      if(!r.ok){const detail=await r.text().catch(()=> '');throw new Error(`お知らせを取得できません (${r.status})${detail?`：${detail.slice(0,400)}`:''}`);}
+      const rows=await r.json();
+      const now=Date.now();
+      const active=(rows||[]).find((x:any)=>{
+        const start=x.start_at?Date.parse(x.start_at):null,end=x.end_at?Date.parse(x.end_at):null;
+        return (!start||start<=now)&&(!end||end>=now);
+      })||null;
+      return json({announcement:active},200,headers);
+    }
     if(action.startsWith('admin-')){
       requireAdmin(String(body.adminCode||''));
       if(action==='admin-auth')return json({ok:true},200,headers);
@@ -102,7 +134,9 @@ Deno.serve(async(req)=>{
       }
       if(action==='admin-create-announcement'){
         const title=String(body.title||'').trim(),text=String(body.body||'').trim();if(!title)throw new Error('お知らせタイトルを入力してください。');
-        const r=await rest('/rest/v1/anniversary_announcements',{method:'POST',headers:{'content-type':'application/json','prefer':'return=representation'},body:JSON.stringify({title,body:text,is_active:true})});if(!r.ok)throw new Error('お知らせを追加できません。');return json({announcement:(await r.json())?.[0]||null},200,headers);
+        const r=await rest('/rest/v1/anniversary_announcements',{method:'POST',headers:{'content-type':'application/json','prefer':'return=representation'},body:JSON.stringify({title,body:text,is_active:true})});
+        if(!r.ok){const detail=await r.text().catch(()=> '');throw new Error(`お知らせを追加できません (${r.status})${detail?`：${detail.slice(0,400)}`:''}`);}
+        return json({announcement:(await r.json())?.[0]||null},200,headers);
       }
       if(action==='admin-update-announcement'){
         const id=String(body.id||''),patch=body.patch||{},safe:any={};if(typeof patch.is_active==='boolean')safe.is_active=patch.is_active;if(typeof patch.title==='string'&&patch.title.trim())safe.title=patch.title.trim().slice(0,200);if(typeof patch.body==='string')safe.body=patch.body.slice(0,2000);
