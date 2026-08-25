@@ -475,6 +475,40 @@ async function recordLoginBonus(name){
   if(isNew) showLoginBonusToast(days,streak);
 }
 
+
+// v5.14 - activity measurement for awards/admin dashboard
+async function trackActivity(eventType, metadata={}){
+  const login=currentStaff||loadStaffLogin?.();
+  const name=login?.name;
+  if(!sb||!name||!eventType) return;
+  try{
+    await sb.from('anniversary_activity_events').insert({
+      staff_name:name,
+      event_type:eventType,
+      event_date:localDateKey(),
+      device_id:getBonusDeviceId(),
+      metadata:metadata||{}
+    });
+  }catch(e){ console.warn('activity tracking skipped',eventType,e); }
+}
+let sessionOpenTracked=false;
+function trackAppOpen(name){
+  if(sessionOpenTracked) return;
+  sessionOpenTracked=true;
+  const standalone=isStandaloneApp?.()||false;
+  trackActivity('app_open',{standalone,userAgent:navigator.userAgent.slice(0,180)});
+  if(standalone) trackActivity('standalone_open',{});
+}
+async function loadActiveAnnouncement(){
+  const box=document.getElementById('adminAnnouncement');
+  if(!box||!sb) return;
+  try{
+    const {data,error}=await sb.from('anniversary_announcements').select('id,title,body,created_at').order('created_at',{ascending:false}).limit(1);
+    if(error||!data?.length){box.hidden=true;return;}
+    const a=data[0];box.hidden=false;box.innerHTML=`<span>FROM 20TH OFFICE</span><b>${escapeHtml(a.title||'お知らせ')}</b>${a.body?`<small>${escapeHtml(a.body)}</small>`:''}`;
+  }catch(_e){box.hidden=true;}
+}
+
 loadSupabasePosts();
 const STAFF_LOGIN_KEY='homes20StaffLogin';
 const STAFF_CODE=String(APP_CONFIG.staffCode||'2027');
@@ -525,6 +559,8 @@ function showApp(name){
   appShell.classList.add('ready');
   updateProfile(name);
   recordLoginBonus(name);
+  trackAppOpen(name);
+  loadActiveAnnouncement();
   scheduleInstallOnboarding();
 }
 
@@ -570,7 +606,7 @@ startOpeningSequence();
 
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=513').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=514').catch(()=>{}));
 }
 
 // v5.13 - ホーム画面追加オンボーディング
@@ -608,7 +644,7 @@ function setInstallState(){
 function openInstallGuide(){
   if(!installDialog) return;
   setInstallState();
-  if(!installDialog.open) installDialog.showModal();
+  if(!installDialog.open){ installDialog.showModal(); trackActivity('install_guide_view',{ios:isIOSDevice(),android:isAndroidDevice()}); }
 }
 function closeInstallGuide(snooze=false){
   if(snooze){ localStorage.setItem(INSTALL_SNOOZE_KEY,String(Date.now()+24*60*60*1000)); }
@@ -628,12 +664,14 @@ window.addEventListener('beforeinstallprompt',e=>{
 window.addEventListener('appinstalled',()=>{
   deferredInstallPrompt=null;
   localStorage.removeItem(INSTALL_SNOOZE_KEY);
+  trackActivity('install_completed',{source:'browser_event'});
   if(installDialog?.open) installDialog.close();
 });
 document.getElementById('nativeInstallBtn')?.addEventListener('click',async()=>{
   if(!deferredInstallPrompt) return;
   deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice.catch(()=>null);
+  const choice=await deferredInstallPrompt.userChoice.catch(()=>null);
+  trackActivity('install_prompt_result',{outcome:choice?.outcome||'unknown'});
   deferredInstallPrompt=null;
   setInstallState();
 });
@@ -699,6 +737,7 @@ function initUpload(){
   const saveBtn=document.getElementById('saveVideoBtn');
   let selectedFile=null;
   let selectedObjectUrl='';
+  let mediaMeta={kind:'',width:null,height:null,duration:null,isPortrait:false};
   const loginForForm=currentStaff||loadStaffLogin();
   const postingAs=document.getElementById('postingAs');
   if(postingAs && loginForForm?.name){
@@ -711,6 +750,7 @@ function initUpload(){
     if(selectedObjectUrl) URL.revokeObjectURL(selectedObjectUrl);
     selectedObjectUrl=URL.createObjectURL(selectedFile);
     const isImage=selectedFile.type.startsWith('image/');
+    mediaMeta={kind:isImage?'image':'video',width:null,height:null,duration:null,isPortrait:false};
     const media=isImage
       ? `<img class="upload-image-preview" src="${selectedObjectUrl}" alt="選択した写真">`
       : `<video id="previewVideo" src="${selectedObjectUrl}" controls playsinline></video>`;
@@ -720,6 +760,8 @@ function initUpload(){
       video?.addEventListener('loadedmetadata',()=>{
         const info=previewArea.querySelector('.video-fileinfo');
         const portrait=video.videoHeight>video.videoWidth;
+        mediaMeta={kind:'video',width:video.videoWidth||null,height:video.videoHeight||null,duration:Number(video.duration)||null,isPortrait:portrait};
+        if(portrait) trackActivity('portrait_tip_view',{width:video.videoWidth,height:video.videoHeight,fileName:selectedFile.name});
         info.innerHTML=`<b>${escapeHtml(selectedFile.name)}</b><br>${readableBytes(selectedFile.size)} ・ ${fmtDuration(video.duration)} ・ ${video.videoWidth}×${video.videoHeight}px${portrait?'<div class="orientation-warning">この動画は縦向きです。投稿はできますが、次回は横向き撮影がおすすめです。</div>':''}`;
       });
     }
@@ -785,6 +827,12 @@ function initUpload(){
       original_file_name:driveFile?.name||selectedFile.name,
       original_mime_type:driveFile?.mimeType||selectedFile.type||null,
       original_size:driveFile?.size||selectedFile.size,
+      media_kind:mediaMeta.kind|| (selectedFile.type.startsWith('image/')?'image':'video'),
+      media_width:mediaMeta.width,
+      media_height:mediaMeta.height,
+      media_duration_seconds:mediaMeta.duration,
+      is_portrait:mediaMeta.isPortrait,
+      final_movie_status:'unreviewed',
       preview_url:previewUrl,
       is_public:false,
       final_movie_candidate:finalCandidate
@@ -800,6 +848,7 @@ function initUpload(){
     }
 
     posts.unshift({id:inserted?.id,title:t,author:a,icon:selectedFile.type.startsWith('image/')?'camera':'video',alt:true,image:previewUrl,tag:'NEW',campus:campus||'',category:category||'',driveFileId:driveFile?.id||'',driveWebViewUrl:driveFile?.webViewLink||'',originalFilename:driveFile?.name||selectedFile.name,isVideo:selectedFile.type.startsWith('video/')});
+    trackActivity('post_created',{postId:inserted?.id||null,kind:mediaMeta.kind,width:mediaMeta.width,height:mediaMeta.height,duration:mediaMeta.duration,isPortrait:mediaMeta.isPortrait,finalCandidate});
     renderPosts();
     startAutoScroll();
     previewArea.insertAdjacentHTML('beforeend',`<small class="upload-status success">投稿できました。原本は会社Google Driveに保存されています。</small>`);
