@@ -159,25 +159,64 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closePostDetail();}
 
 
 
-const anniversaryStories = [
-  // 後で実際の20年分の出来事リストをここへ追加。
-  // 例: { month: 8, day: 23, yearsAgo: 12, title: 'マーライオン事件' }
-];
+const historyDays=Array.isArray(window.HOMES_HISTORY)?window.HOMES_HISTORY:[];
+let remoteTodayEvents=[];
 
+function japanTodayParts(date=new Date()){
+  const parts=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric'}).formatToParts(date);
+  const value=type=>Number(parts.find(p=>p.type===type)?.value||0);
+  return {year:value('year'),month:value('month'),day:value('day')};
+}
+function localDateKey(parts=japanTodayParts()){
+  return `${parts.year}-${String(parts.month).padStart(2,'0')}-${String(parts.day).padStart(2,'0')}`;
+}
+function staticHistoryFor(month,day){
+  return historyDays.find(item=>Number(item.month)===Number(month)&&Number(item.day)===Number(day))||null;
+}
+function allTodayEvents(){
+  const now=japanTodayParts();
+  const staticDay=staticHistoryFor(now.month,now.day);
+  const staticEvents=(staticDay?.events||[]).map(e=>({...e,source:'archive'}));
+  return [...staticEvents,...remoteTodayEvents];
+}
+function representativeTodayEvent(){
+  const now=japanTodayParts();
+  const staticDay=staticHistoryFor(now.month,now.day);
+  if(staticDay?.representative) return {...staticDay.representative,source:'archive'};
+  return remoteTodayEvents[0]||null;
+}
 function renderTodayMemory(){
   const target=document.getElementById('todayMemoryText');
+  const box=document.getElementById('todayMemory');
   if(!target) return;
-
-  const now=new Date();
-  const month=now.getMonth()+1;
-  const day=now.getDate();
-  const story=anniversaryStories.find(item=>item.month===month && item.day===day);
-
-  if(story){
-    target.textContent=`今日は${story.yearsAgo}年前、${story.title}があった日です。`;
+  const now=japanTodayParts();
+  const events=allTodayEvents();
+  const representative=representativeTodayEvent();
+  if(representative){
+    const years=Number(representative.year)?Math.max(0,now.year-Number(representative.year)):null;
+    target.textContent=years!==null?`今日は${years}年前、${representative.title}があった日です。`:`今日は、${representative.title}があった日です。`;
+    if(events.length>1) target.textContent+=`（ほか${events.length-1}件）`;
+    box?.classList.add('has-memory');
   }else{
-    target.textContent='今日は12年前、マーライオン事件があった日です。';
+    target.textContent='今日はまだHOMESの「何の日」が登録されていません。';
+    box?.classList.remove('has-memory');
   }
+}
+async function refreshRemoteTodayEvents(){
+  if(!sb) return;
+  const now=japanTodayParts();
+  const {data,error}=await sb.from('anniversary_today_events')
+    .select('id,month,day,event_year,title,note,author_name,created_at')
+    .eq('month',now.month).eq('day',now.day).order('event_year',{ascending:true});
+  if(error){
+    // v5.8用テーブル未作成時も一般画面は静的沿革で動かす。
+    console.warn('追加の「今日は何の日」取得をスキップ',error);
+    return;
+  }
+  remoteTodayEvents=(data||[]).map(row=>({
+    id:row.id,year:row.event_year,title:row.title,note:row.note||'',category:'KENJI追加',authorName:row.author_name||'',source:'kenji'
+  }));
+  renderTodayMemory();
 }
 renderTodayMemory();
 
@@ -215,6 +254,7 @@ const SB_CONFIG=window.HOMES_SUPABASE||{};
 const APP_CONFIG=window.HOMES_APP_CONFIG||{};
 const SUPABASE_READY=Boolean(SB_CONFIG.url && SB_CONFIG.publishableKey && window.supabase?.createClient);
 const sb=SUPABASE_READY ? window.supabase.createClient(SB_CONFIG.url,SB_CONFIG.publishableKey) : null;
+refreshRemoteTodayEvents();
 
 async function loadSupabasePosts(){
   if(!sb) return;
@@ -374,6 +414,67 @@ async function createAndUploadPreview(file){
   return data?.publicUrl||null;
 }
 
+const BONUS_DEVICE_KEY='homes20BonusDeviceId';
+function getBonusDeviceId(){
+  let id=localStorage.getItem(BONUS_DEVICE_KEY);
+  if(!id){ id=crypto.randomUUID?.()||`device-${Date.now()}-${Math.random().toString(36).slice(2)}`; localStorage.setItem(BONUS_DEVICE_KEY,id); }
+  return id;
+}
+function calcLoginStreak(dateStrings){
+  const set=new Set(dateStrings);
+  let cursor=japanTodayParts();
+  let streak=0;
+  for(let i=0;i<4000;i++){
+    const key=localDateKey(cursor);
+    if(!set.has(key)) break;
+    streak++;
+    const d=new Date(Date.UTC(cursor.year,cursor.month-1,cursor.day)-86400000);
+    cursor={year:d.getUTCFullYear(),month:d.getUTCMonth()+1,day:d.getUTCDate()};
+  }
+  return streak;
+}
+function showLoginBonusToast(days,streak){
+  const toast=document.getElementById('loginBonusToast');
+  const text=document.getElementById('loginBonusToastText');
+  if(!toast||!text) return;
+  text.textContent=`累計${days}日・連続${streak}日`;
+  toast.classList.add('show'); toast.setAttribute('aria-hidden','false');
+  clearTimeout(showLoginBonusToast.t);
+  showLoginBonusToast.t=setTimeout(()=>{toast.classList.remove('show');toast.setAttribute('aria-hidden','true');},2800);
+}
+async function recordLoginBonus(name){
+  const msg=document.getElementById('loginBonusMessage');
+  const daysEl=document.getElementById('loginBonusDays');
+  const streakEl=document.getElementById('loginBonusStreak');
+  const postsEl=document.getElementById('loginBonusPosts');
+  if(!sb||!name){ if(msg) msg.textContent='ログインボーナス準備中'; return; }
+  const today=localDateKey();
+  let isNew=false;
+  const {data:existing,error:findError}=await sb.from('anniversary_login_days').select('id').eq('staff_name',name).eq('login_date',today).limit(1);
+  if(findError){
+    console.warn('ログインボーナスはSQL設定後に有効になります',findError);
+    if(msg) msg.textContent='ログインボーナスは初期設定後にスタート';
+    return;
+  }
+  if(!existing?.length){
+    const {error:insertError}=await sb.from('anniversary_login_days').insert({staff_name:name,login_date:today,device_id:getBonusDeviceId()});
+    if(!insertError) isNew=true; else console.warn('ログイン記録に失敗',insertError);
+  }
+  const [{data:loginRows,error:loginError},{count:postCount,error:postError}]=await Promise.all([
+    sb.from('anniversary_login_days').select('login_date').eq('staff_name',name).order('login_date',{ascending:true}),
+    sb.from('anniversary_posts').select('id',{count:'exact',head:true}).eq('author_name',name)
+  ]);
+  if(loginError){console.warn(loginError);return;}
+  const dates=[...new Set((loginRows||[]).map(r=>r.login_date))];
+  const days=dates.length;
+  const streak=calcLoginStreak(dates);
+  if(daysEl) daysEl.textContent=days;
+  if(streakEl) streakEl.textContent=streak;
+  if(postsEl) postsEl.textContent=postError?'--':(postCount||0);
+  if(msg) msg.textContent=isNew?'今日のログインボーナス GET！':'今日のログインは記録済み';
+  if(isNew) showLoginBonusToast(days,streak);
+}
+
 loadSupabasePosts();
 const STAFF_LOGIN_KEY='homes20StaffLogin';
 const STAFF_CODE=String(APP_CONFIG.staffCode||'2027');
@@ -423,6 +524,7 @@ function showApp(name){
   authGate.setAttribute('aria-hidden','true');
   appShell.classList.add('ready');
   updateProfile(name);
+  recordLoginBonus(name);
 }
 
 function showAuth(message=''){
@@ -475,6 +577,25 @@ const kicker=document.getElementById('dialogKicker');
 const body=document.getElementById('dialogBody');
 const templates={upload:'uploadTemplate',bike:'bikeTemplate',missions:'missionsTemplate',timeline:'timelineTemplate',survey:'surveyTemplate'};
 const labels={upload:['POST YOUR MEMORY','写真・動画を投稿'],bike:['KAWASE PRESIDENT RIDE','川瀬社長自転車の旅'],missions:['20TH ANNIVERSARY QUEST','20周年ミッション'],timeline:['HOMES TIME MACHINE','20年の沿革'],survey:['QUESTIONNAIRE','20周年アンケート']};
+
+function openTodayHistory(){
+  const now=japanTodayParts();
+  const events=allTodayEvents();
+  kicker.textContent='TODAY IN HOMES';
+  title.textContent=`${now.month}月${now.day}日`;
+  if(!events.length){
+    body.innerHTML='<section class="today-history-empty"><span>NO ARCHIVE YET</span><h3>今日はまだ「何の日」がありません。</h3><p>新しい出来事が見つかったら、KENJI MODEから追加できます。</p></section>';
+  }else{
+    body.innerHTML=`<section class="today-history-list"><div class="today-history-lead"><span>${events.length} EVENT${events.length>1?'S':''}</span><b>${now.month}月${now.day}日のHOMES</b></div>${events.map(ev=>`<article><div class="today-history-year">${ev.year?escapeHtml(ev.year):'—'}</div><div><h3>${escapeHtml(ev.title)}</h3>${ev.note?`<p>${escapeHtml(ev.note)}</p>`:''}<small>${ev.source==='kenji'?'KENJI MODEから追加':escapeHtml(ev.category||'HOMES ARCHIVE')}</small></div></article>`).join('')}</section>`;
+  }
+  dialog.showModal();
+}
+const todayMemoryBox=document.getElementById('todayMemory');
+if(todayMemoryBox){
+  todayMemoryBox.addEventListener('click',openTodayHistory);
+  todayMemoryBox.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openTodayHistory();}});
+}
+
 
 function openRoute(route){
   if(route==='home') return;

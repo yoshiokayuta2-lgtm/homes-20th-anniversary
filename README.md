@@ -1,8 +1,8 @@
-# HOMES 20周年アプリ v5.7
+# HOMES 20周年アプリ v5.8
 
 - 動画カードをタップしても反応しない不具合を修正。
 - Google Driveストリーミング用Edge Function URLの定義漏れを修正。
-- PWAキャッシュをv57へ更新。
+- PWAキャッシュをv58へ更新。
 
 # HOMES 20周年アプリ v5.0
 
@@ -39,3 +39,15 @@ Google Drive resumable upload session initialization now sends the GitHub Pages 
 - PWA/service worker cache version bumped to homes20-v56
 - app.js/styles.css/supabase-config.js use cache-busting query strings
 - app shell uses network-first for HTML/JS/CSS/config so GitHub updates appear immediately
+
+
+## v5.8 追加機能
+- 最終チェック済み沿革241日・300件を「今日は何の日」に反映
+- ホームの TODAY IN HOMES をタップすると、その日の全出来事を表示
+- 全社員のログインボーナス（1日1回、累計日数・連続日数・投稿回数）
+- KENJI MODEで「今日は何の日」の有無を確認。空白日はその場で出来事を追加
+- KENJI MODEに表彰用ダッシュボード（ログイン日数・投稿回数・今日ログイン人数）
+
+### v5.8公開前に1回だけ
+Supabase SQL Editor で `supabase-setup-v58.sql` を実行してください。
+ログイン日数はv5.8公開後から蓄積します。既存の投稿回数はそのまま集計対象です。
