@@ -1,6 +1,6 @@
-const CACHE_NAME='homes20-v58';
+const CACHE_NAME='homes20-v59';
 const ASSETS=[
-  './','./index.html','./styles.css','./app.js','./history-data.js','./supabase-config.js','./manifest.webmanifest',
+  './','./index.html','./admin.html','./ride-admin.html','./styles.css','./app.js','./history-data.js','./supabase-config.js','./manifest.webmanifest',
   './assets/homes-education-logo.png','./assets/homes-mark.png','./assets/rose.png',
   './assets/opening-master-hq.png','./assets/kenji-bike.png',
   './assets/app-icon-192.png','./assets/app-icon-512.png'

@@ -51,3 +51,18 @@ Google Drive resumable upload session initialization now sends the GitHub Pages 
 ### v5.8公開前に1回だけ
 Supabase SQL Editor で `supabase-setup-v58.sql` を実行してください。
 ログイン日数はv5.8公開後から蓄積します。既存の投稿回数はそのまま集計対象です。
+
+## v5.9 管理者モード
+
+- `admin.html` を追加しました。
+- 投稿一覧・検索、公開ON/OFF、FINAL MOVIE候補ON/OFF、完全削除を管理できます。
+- 完全削除は Edge Function 経由で、Google Drive原本 → Supabase Storageサムネ → `anniversary_posts` DB行をまとめて削除します。
+- ログイン日数・投稿回数ランキングを表示します。
+- KENJI MODEから追加した「今日は何の日」イベントも削除できます。
+
+### 初回だけ必要な設定
+Supabase > Edge Functions > Secrets に `ADMIN_MODE_CODE` を追加し、管理者だけが知るコードを設定してください。
+その後 `supabase/functions/drive-init-upload/index.ts` を v5.9 の内容で再Deployしてください。
+SQL追加はありません。
+
+管理画面URL: `https://yoshiokayuta2-lgtm.github.io/homes-20th-anniversary/admin.html`
