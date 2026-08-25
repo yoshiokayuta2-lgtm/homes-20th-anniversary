@@ -72,3 +72,9 @@ SQL追加はありません。
 - 管理者モードの投稿一覧取得を、一般画面と同じSupabase読み取り経路に変更。
 - Edge Functionの管理者APIは更新・削除専用に継続。
 - admin.html / ride-admin.html をService Workerでnetwork-firstにして更新反映を安定化。
+
+
+## v5.11
+- 管理者モードの投稿一覧・表彰参加状況・KENJI MODE追加イベント一覧をすべてEdge Function経由に統一。
+- anon権限でanniversary_posts等を直接SELECTしないため、管理データを公開側に露出しません。
+- 管理者コード検証後のみ一覧取得・更新・削除が可能です。

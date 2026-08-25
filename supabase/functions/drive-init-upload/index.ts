@@ -48,7 +48,22 @@ Deno.serve(async(req)=>{
       requireAdmin(String(body.adminCode||''));
       if(action==='admin-auth')return json({ok:true},200,headers);
       if(action==='admin-list-posts'){
-        const r=await rest('/rest/v1/anniversary_posts?select=id,title,author_name,campus,category,preview_url,created_at,drive_file_id,drive_web_view_url,original_file_name,original_filename,is_public,final_movie_candidate&order=created_at.desc&limit=500');if(!r.ok)throw new Error('投稿一覧を取得できません。');return json({posts:await r.json()},200,headers);
+        const r=await rest('/rest/v1/anniversary_posts?select=id,title,author_name,campus,category,preview_url,created_at,drive_file_id,drive_web_view_url,original_file_name,original_filename,is_public,final_movie_candidate&order=created_at.desc&limit=500');
+        if(!r.ok)throw new Error('投稿一覧を取得できません。');
+        return json({posts:await r.json()},200,headers);
+      }
+      if(action==='admin-list-activity'){
+        const [l,p]=await Promise.all([
+          rest('/rest/v1/anniversary_login_days?select=staff_name,login_date&limit=20000'),
+          rest('/rest/v1/anniversary_posts?select=author_name&limit=20000')
+        ]);
+        if(!l.ok||!p.ok)throw new Error('参加状況を取得できません。');
+        return json({loginDays:await l.json(),postAuthors:await p.json()},200,headers);
+      }
+      if(action==='admin-list-today-events'){
+        const r=await rest('/rest/v1/anniversary_today_events?select=id,month,day,event_year,title,note,author_name,created_at&order=month.asc,day.asc,event_year.asc');
+        if(!r.ok)throw new Error('今日は何の日の追加データを取得できません。');
+        return json({events:await r.json()},200,headers);
       }
       if(action==='admin-update-post'){
         const postId=String(body.postId||'');const patch=body.patch||{};const safe:any={};if(typeof patch.is_public==='boolean')safe.is_public=patch.is_public;if(typeof patch.final_movie_candidate==='boolean')safe.final_movie_candidate=patch.final_movie_candidate;
