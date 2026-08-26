@@ -54,6 +54,7 @@
 .profile-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:17px 2px 8px}.profile-head h3{font-size:14px;margin:0}.profile-head small{font-size:8px;color:#8a9aa6}.profile-chart{border:1px solid #e0e8ee;background:#fbfdff;border-radius:16px;padding:8px;min-height:220px;overflow:hidden}.profile-chart svg{display:block;width:100%;height:auto}.profile-empty{min-height:202px;display:grid;place-items:center;text-align:center;color:#8da0ad;font-size:10px;padding:20px}.grade-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:8px;color:#7e8f9b}.grade-legend span{display:inline-flex;align-items:center;gap:5px}.grade-dot{width:9px;height:9px;border-radius:3px;display:inline-block}.grade-dot.down{background:#4f91c9}.grade-dot.flat{background:#a8b5bf}.grade-dot.up{background:#ef7c8c}.grade-dot.hard{background:#c51e36}
 @media(max-width:640px){.ride-navigation{padding:14px;border-radius:20px}.ride-controls{grid-template-columns:1fr}.ride-start{width:100%}.ride-kpis{grid-template-columns:1fr 1fr}.ride-map{height:250px}.ride-actions{display:grid;grid-template-columns:1fr 1fr}.ride-action-btn:last-child{grid-column:1/-1}.ride-nav-head h2{font-size:18px}}
 
+.ride-build-badge{display:inline-flex;margin-left:8px;padding:3px 7px;border-radius:999px;background:#eef3f7;color:#6c8091;font-size:8px;font-weight:800;letter-spacing:.08em;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -117,7 +118,7 @@
 
     <section class="ride-navigation" id="rideNavigation">
       <div class="ride-nav-head">
-        <div><small>LIVE RIDE NAVIGATION</small><h2>現在地 → 行きたい場所</h2></div>
+        <div><small>LIVE RIDE NAVIGATION <span class="ride-build-badge">v5.15.4</span></small><h2>現在地 → 行きたい場所</h2></div>
         <span class="gps-pill" id="gpsStatus">GPS OFF</span>
       </div>
       <div class="ride-controls">
@@ -169,6 +170,7 @@
 <script src="history-data.js?v=58"></script>
 <script>
 const KEY='homes20RideState';
+console.info('KENJI RIDE NAV v5.15.4');
 const campuses=[
   {name:'岐阜本部校',day:1,time:'09:15',place:'岐阜市橋本町',displayPlace:'岐阜県岐阜市',address:'岐阜県岐阜市橋本町2-52 岐阜シティ・タワー43',lat:35.4106915,lng:136.7541992,photo:'assets/campuses/gifu-hombu.png'},
   {name:'岐南校',day:1,time:'12:40',place:'羽島郡岐南町',displayPlace:'岐阜県羽島郡岐南町',address:'岐阜県羽島郡岐南町三宅4-109-1',lat:35.3915741,lng:136.7967351,photo:'assets/campuses/ginan.png'},

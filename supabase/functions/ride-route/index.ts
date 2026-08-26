@@ -1,6 +1,23 @@
 const ORS_API_KEY = Deno.env.get('ORS_API_KEY') || '';
 const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'https://yoshiokayuta2-lgtm.github.io';
 
+const KNOWN_DESTINATIONS: Record<string, { lat: number; lng: number; label: string }> = {
+  '岐阜本部校': { lat: 35.4106915, lng: 136.7541992, label: '岐阜本部校' },
+  '岐南校': { lat: 35.3915741, lng: 136.7967351, label: '岐南校' },
+  '神戸校': { lat: 35.4272951, lng: 136.6059162, label: '神戸校' },
+  '大垣本部校': { lat: 35.3685870, lng: 136.6186916, label: '大垣本部校' },
+  '穂積校': { lat: 35.3949750, lng: 136.6725120, label: '穂積校' },
+};
+
+function knownDestination(value: unknown) {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+  for (const [name, dest] of Object.entries(KNOWN_DESTINATIONS)) {
+    if (raw === name || raw.includes(name)) return dest;
+  }
+  return null;
+}
+
 function cors(origin: string | null) {
   const allowed = origin && (origin === ALLOWED_ORIGIN || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))
     ? origin
@@ -135,8 +152,14 @@ Deno.serve(async (req) => {
       destination = { lat: destLat, lng: destLng, label: String(body?.destination?.label || '目的地') };
     } else {
       const text = String(body?.destination?.text || '').trim();
-      if (!text) throw new Error('目的地を入力してください。');
-      destination = await geocode(text);
+      const label = String(body?.destination?.label || '').trim();
+      const fixed = knownDestination(label) || knownDestination(text);
+      if (fixed) {
+        destination = fixed;
+      } else {
+        if (!text) throw new Error('目的地を入力してください。');
+        destination = await geocode(text);
+      }
     }
 
     const profile = ['cycling-road', 'cycling-regular'].includes(body?.profile) ? body.profile : 'cycling-road';
