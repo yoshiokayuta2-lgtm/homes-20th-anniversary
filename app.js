@@ -36,7 +36,9 @@ async function loadPostLikes(){
   const counts=new Map(), mine=new Set();
   const me=(currentStaff||loadStaffLogin())?.name||'';
   for(const row of (data||[])){const id=String(row.post_id||'');if(!id)continue;counts.set(id,(counts.get(id)||0)+1);if(me&&row.staff_name===me)mine.add(id);}
-  postLikes=counts;likedPostIds=mine;renderPosts();startAutoScroll();
+  const feed=document.getElementById('postFeed');
+  const previousScroll=feed?.scrollLeft||0;
+  postLikes=counts;likedPostIds=mine;renderPosts();startAutoScroll(previousScroll);
 }
 async function togglePostLike(postId){
   if(!sb||!postId)return;
@@ -50,8 +52,16 @@ async function togglePostLike(postId){
     const {error}=await sb.from('anniversary_post_likes').insert({post_id:id,staff_name:login.name});
     if(error&&error.code!=='23505'){console.warn(error);return;} likedPostIds.add(id);postLikes.set(id,likeCount(id)+1);
   }
-  renderPosts();startAutoScroll();
-  const detail=document.querySelector(`[data-detail-like="${CSS.escape(id)}"]`);if(detail){detail.classList.toggle('liked',!on);detail.querySelector('span').textContent=!on?'♥':'♡';detail.querySelector('b').textContent=likeCount(id);}
+  // いいね操作ではフィード全体を描き直さない。
+  // 描き直すと横スクロール位置が0へ戻るため、該当ボタンだけ更新する。
+  document.querySelectorAll(`[data-like-post="${CSS.escape(id)}"]`).forEach(btn=>{
+    const liked=likedPostIds.has(id);
+    btn.classList.toggle('liked',liked);
+    btn.setAttribute('aria-label',liked?'いいねを取り消す':'いいねする');
+    const heart=btn.querySelector('span'); if(heart) heart.textContent=liked?'♥':'♡';
+    const count=btn.querySelector('b'); if(count) count.textContent=likeCount(id);
+  });
+  const detail=document.querySelector(`[data-detail-like="${CSS.escape(id)}"]`);if(detail){const liked=likedPostIds.has(id);detail.classList.toggle('liked',liked);detail.querySelector('span').textContent=liked?'♥':'♡';detail.querySelector('b').textContent=likeCount(id);}
 }
 function renderPosts(){
   const feed=document.getElementById('postFeed');
@@ -65,7 +75,7 @@ function renderPosts(){
   });
 }
 
-function startAutoScroll(){
+function startAutoScroll(initialPosition=null){
   const feed=document.getElementById('postFeed');
   if(!feed) return;
   if(autoScrollTimer) cancelAnimationFrame(autoScrollTimer);
@@ -134,8 +144,12 @@ function startAutoScroll(){
     document.removeEventListener('visibilitychange',onVisibility);
   };
 
-  position=0;
-  feed.scrollLeft=0;
+  if(initialPosition!==null && Number.isFinite(Number(initialPosition))){
+    position=Number(initialPosition);
+    feed.scrollLeft=position;
+  }else{
+    position=feed.scrollLeft||0;
+  }
   autoScrollTimer=requestAnimationFrame(tick);
 }
 
