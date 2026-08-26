@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KENJI MODE | HOMES 20th Anniversary</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
 :root{--navy:#07355f;--navy2:#0b4777;--navy3:#0d2f50;--red:#ef233c;--red2:#d9162f;--blue:#1686e8;--green:#21b36b;--ink:#0c3155;--muted:#6f8499;--line:#dce6ef;--bg:#eef4f8;--white:#fff;--shadow:0 12px 30px rgba(16,50,82,.12)}
 *{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:linear-gradient(#edf4f8,#f8fbfd);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}.app{max-width:780px;margin:auto;min-height:100vh;padding-bottom:42px}.topbar{height:64px;background:linear-gradient(90deg,#123f69,#082e52);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 8px 24px rgba(7,35,61,.18)}.brand{display:flex;align-items:baseline;gap:16px}.brand strong{font-size:26px;font-style:italic;letter-spacing:.02em}.brand span{font-size:11px;letter-spacing:.08em;opacity:.9}.back{color:#fff;text-decoration:none;font-size:12px;display:flex;align-items:center;gap:8px}.back b{font-size:24px;font-weight:400;line-height:1}
 .hero{position:relative;min-height:165px;padding:28px 28px 18px;background:linear-gradient(180deg,#f7fbff 0%,#eef4f7 100%);overflow:hidden}.hero:after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:#dbe5ec}.hero-copy{position:relative;z-index:2;max-width:70%}.hero-kicker{font-size:10px;font-weight:800;letter-spacing:.17em;color:var(--red);margin-bottom:7px}.hero-title{margin:0;font-size:52px;line-height:.95;font-weight:900;letter-spacing:-.045em;color:#062f57;font-style:italic}.hero-title .mode{font-weight:400;letter-spacing:-.04em;margin-left:10px;color:#0c3b66}.hero-sub{margin:12px 0 0;font-size:14px;letter-spacing:.18em;color:#315b7c}.bike{position:absolute;right:20px;top:24px;width:185px;max-width:31%;filter:drop-shadow(0 7px 10px rgba(20,38,52,.16));object-fit:contain}
 .content{padding:0 18px 30px}.status-grid{margin-top:-1px;background:#fff;border-radius:0 0 24px 24px;box-shadow:var(--shadow);display:grid;grid-template-columns:1.1fr 1.35fr 1fr;overflow:hidden}.status-item{padding:20px 18px;display:flex;gap:13px;align-items:center;min-width:0}.status-item+ .status-item{border-left:1px solid var(--line)}.status-icon{width:42px;height:42px;border-radius:14px;background:#edf5fb;display:grid;place-items:center;flex:none;font-size:22px}.status-label{font-size:10px;color:var(--muted);font-weight:700}.status-value{font-size:20px;font-weight:800;margin-top:2px;white-space:nowrap}.status-value small{font-size:11px;font-weight:600}.running{display:inline-flex;align-items:center;gap:6px;margin-top:5px;padding:5px 9px;background:#f2f7fa;border-radius:99px;font-size:10px;font-weight:700;color:#42627c}.running i{width:8px;height:8px;border-radius:50%;background:var(--green)}
-.next-card{margin-top:18px;background:linear-gradient(135deg,#0b4777,#07335d);color:white;border-radius:24px;padding:22px 24px;box-shadow:0 18px 36px rgba(4,47,84,.18)}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;opacity:.8;margin-bottom:12px}.next-main{display:grid;grid-template-columns:minmax(0,1.35fr) .75fr 150px;gap:18px;align-items:center}.next-campus{display:flex;align-items:center;gap:16px;min-width:0}.campus-thumb{position:relative;width:110px;height:82px;border-radius:18px;border:1px solid rgba(255,255,255,.55);background:linear-gradient(145deg,#d7e8f4,#9dc1db);display:grid;place-items:center;color:#0d3a63;font-weight:900;font-size:26px;flex:none;overflow:hidden;box-shadow:0 16px 26px rgba(6,31,56,.22)}.campus-thumb:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(7,30,53,.18))}.next-name{font-size:25px;font-weight:800}.next-place{font-size:11px;opacity:.88;margin-top:5px}.next-place span{margin-right:5px}.route-chip{display:inline-flex;margin-top:10px;background:rgba(255,255,255,.96);color:#0c3e68;border-radius:99px;padding:7px 11px;font-size:10px;font-weight:800;box-shadow:0 8px 18px rgba(4,47,84,.12)}.next-meta{border-left:1px solid rgba(255,255,255,.25);padding-left:18px}.meta-row{margin:7px 0}.meta-row span{display:block;font-size:10px;opacity:.8}.meta-row b{font-size:25px}.arrive-main{border:1px solid rgba(255,255,255,.65);background:linear-gradient(135deg,#ff334b,#d9162f);color:#fff;border-radius:18px;min-height:72px;padding:12px 16px;font-size:21px;font-weight:900;cursor:pointer;box-shadow:0 12px 22px rgba(239,35,60,.24)}
+.next-card{margin-top:18px;background:linear-gradient(135deg,#0b4777,#07335d);color:white;border-radius:24px;padding:22px 24px;box-shadow:0 18px 36px rgba(4,47,84,.18)}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;opacity:.8;margin-bottom:12px}.next-main{display:grid;grid-template-columns:minmax(0,1.35fr) .75fr 150px;gap:18px;align-items:center}.next-campus{display:flex;align-items:center;gap:16px;min-width:0}.campus-thumb{position:relative;width:110px;height:82px;border-radius:18px;border:1px solid rgba(255,255,255,.55);background:linear-gradient(145deg,#d7e8f4,#9dc1db);display:grid;place-items:center;color:#0d3a63;font-weight:900;font-size:26px;flex:none;overflow:hidden;box-shadow:0 16px 26px rgba(6,31,56,.22)}.campus-thumb:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(7,30,53,.18))}.next-name{font-size:25px;font-weight:800}.next-place{font-size:11px;opacity:.88;margin-top:5px}.next-place span{margin-right:5px}.route-chip{border:0;cursor:pointer;font:inherit;display:inline-flex;margin-top:10px;background:rgba(255,255,255,.96);color:#0c3e68;border-radius:99px;padding:7px 11px;font-size:10px;font-weight:800;box-shadow:0 8px 18px rgba(4,47,84,.12)}.next-meta{border-left:1px solid rgba(255,255,255,.25);padding-left:18px}.meta-row{margin:7px 0}.meta-row span{display:block;font-size:10px;opacity:.8}.meta-row b{font-size:25px}.arrive-main{border:1px solid rgba(255,255,255,.65);background:linear-gradient(135deg,#ff334b,#d9162f);color:#fff;border-radius:18px;min-height:72px;padding:12px 16px;font-size:21px;font-weight:900;cursor:pointer;box-shadow:0 12px 22px rgba(239,35,60,.24)}
 .progress-card{margin-top:16px;background:#fff;border:1px solid #e0e9f0;border-radius:22px;padding:20px 22px;box-shadow:0 8px 24px rgba(17,55,88,.07)}.progress-line{display:grid;grid-template-columns:repeat(5,1fr);position:relative}.progress-line:before{content:'';position:absolute;left:8%;right:8%;top:17px;height:4px;background:#dbe3ea;border-radius:99px}.progress-line:after{content:'';position:absolute;left:8%;width:42%;top:17px;height:4px;background:var(--blue);border-radius:99px}.step{position:relative;z-index:2;text-align:center;min-width:0}.pin{width:34px;height:34px;border-radius:50%;margin:auto;display:grid;place-items:center;background:#c8d0d7;color:white;border:3px solid white;box-shadow:0 0 0 1px #d6e0e8;font-size:14px;font-weight:900}.step.done .pin{background:var(--blue)}.step.current .pin{background:var(--red);transform:scale(1.12);box-shadow:0 0 0 6px rgba(239,35,60,.12)}.step b{display:block;font-size:11px;margin-top:8px;white-space:nowrap}.step small{display:block;font-size:9px;color:var(--muted);margin-top:3px}.step.current small{color:var(--red);font-weight:800}
 .section-head{display:flex;align-items:center;justify-content:space-between;margin:24px 4px 11px}.section-head h2{font-size:19px;margin:0}.section-head h2:before{content:'●';color:var(--navy);margin-right:9px;font-size:14px}.map-btn{border:1px solid #cbd9e5;background:#fff;border-radius:99px;padding:9px 13px;font-size:11px;font-weight:800;color:var(--navy);cursor:pointer}.route-list{display:grid;gap:10px}.route-item{display:grid;grid-template-columns:36px 68px minmax(0,1fr) 120px 24px;gap:13px;align-items:center;background:#fff;border:1px solid #e1e9ef;border-radius:18px;padding:12px 14px;box-shadow:0 8px 18px rgba(10,50,85,.05)}.route-state{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#fff;border:3px solid #bbc7d1;color:#fff;font-weight:900;font-size:12px}.route-item.done .route-state{background:var(--blue);border-color:var(--blue)}.route-item.current .route-state{background:var(--red);border-color:var(--red)}.mini-thumb{position:relative;width:68px;height:52px;border-radius:14px;background:linear-gradient(145deg,#e2eef5,#a6c8df);display:grid;place-items:center;color:#0e4778;font-weight:900;overflow:hidden;border:1px solid #d7e3ed;box-shadow:0 10px 18px rgba(10,50,85,.09)}.mini-thumb:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(8,38,67,.12))}.route-name{min-width:0}.route-name b{font-size:14px}.route-name small{display:block;font-size:9px;color:var(--muted);margin-top:4px}.route-time{font-size:11px;color:var(--muted)}.route-action{border:0;border-radius:99px;padding:9px 12px;background:#e3e9ee;color:#264b6a;font-size:10px;font-weight:800}.route-item.current .route-action{background:#ffe3e7;color:var(--red)}.route-item.future .route-action.primary{background:var(--red);color:#fff;cursor:pointer;box-shadow:0 8px 14px rgba(239,35,60,.16)}.chev{color:#8fa1af;font-size:20px}
 .record{margin-top:24px}.record h2{font-size:18px;margin:0 0 12px}.record-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.record-btn{min-height:88px;border-radius:16px;background:#fff;border:1px solid #dce6ee;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;color:var(--navy);font-weight:800;cursor:pointer}.record-btn .ico{font-size:24px}.record-btn small{font-size:9px;color:var(--muted);font-weight:500}.record-btn.photo{border-color:#ff9aa6;background:#fff5f6;color:#e52b42}.record-btn.video{border-color:#85b8ff;background:#f4f8ff;color:#1767c5}.record-btn.msg{border-color:#88d9aa;background:#f4fff8;color:#07924b}.toast{position:sticky;bottom:12px;margin:16px auto 0;max-width:420px;background:#071f36;color:#fff;border-radius:14px;padding:12px 16px;font-size:11px;text-align:center;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:none}
@@ -43,6 +44,15 @@
 /* v5.15.0 KENJI dashboard */
 .kenji-dashboard{display:grid;grid-template-columns:1fr 1.25fr;gap:14px;margin:14px 0 18px}.kenji-panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 8px 20px rgba(7,31,54,.035)}.kenji-panel-head{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:12px}.kenji-panel-head small{display:block;font-size:8px;letter-spacing:.15em;font-weight:800;color:#9aa8b2}.kenji-panel-head h2{margin:3px 0 0;font-size:18px}.today-status-badge{font-size:9px;font-weight:800;border-radius:999px;padding:6px 9px;background:#eef8f1;color:#13854a}.today-status-badge.empty{background:#fff0f0;color:#c72d42}.kenji-today-list{display:grid;gap:8px}.kenji-today-event{display:grid;grid-template-columns:50px 1fr;gap:9px;padding:10px 11px;border-radius:13px;background:#f7f9fb}.kenji-today-event b{font-family:Georgia,serif;color:#d1263c;font-size:15px}.kenji-today-event strong{font-size:12px;line-height:1.45}.kenji-today-event small{display:block;margin-top:3px;color:#8b9aa5;font-size:9px;line-height:1.5}.kenji-empty{border:1px dashed #e2b6bd;background:#fff6f7;border-radius:14px;padding:14px}.kenji-empty b{display:block;color:#c72d42;font-size:13px}.kenji-empty small{display:block;margin-top:4px;color:#7c8d98;line-height:1.55}.today-add-toggle,.activity-refresh{border:1px solid #dce5eb;background:#fff;color:#17344a;border-radius:999px;padding:8px 11px;font:inherit;font-size:9px;font-weight:800;cursor:pointer}.today-add-form{display:none;gap:8px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line)}.today-add-form.show{display:grid}.today-add-form input,.today-add-form textarea{width:100%;border:1px solid #dce5eb;border-radius:11px;padding:10px 11px;font:inherit;font-size:16px;background:#fbfdff}.today-add-form textarea{min-height:70px;resize:vertical}.today-add-form-row{display:grid;grid-template-columns:88px 1fr;gap:8px}.today-add-submit{border:0;border-radius:12px;background:#d7263d;color:#fff;padding:11px 12px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}.activity-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.activity-kpi{padding:11px;border-radius:13px;background:#f4f8fb}.activity-kpi b{display:block;font-size:20px;color:#071f36}.activity-kpi small{font-size:8px;color:#7d8d98}.award-leaders{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}.award-leader{padding:10px 11px;border-radius:13px;background:#071f36;color:#fff}.award-leader span{display:block;font-size:8px;letter-spacing:.12em;color:#9bb3c3}.award-leader b{display:block;margin-top:3px;font-size:12px}.award-leader small{display:block;margin-top:2px;color:#b8c8d2;font-size:9px}.activity-table{width:100%;border-collapse:collapse;font-size:10px}.activity-table th{text-align:left;color:#80909b;font-size:8px;padding:6px 5px;border-bottom:1px solid var(--line)}.activity-table td{padding:8px 5px;border-bottom:1px solid #edf1f4}.activity-table td:nth-child(n+2),.activity-table th:nth-child(n+2){text-align:right}.activity-note{margin-top:9px;color:#93a1aa;font-size:8px;line-height:1.5}
 @media(max-width:760px){.kenji-dashboard{grid-template-columns:1fr}.activity-summary{grid-template-columns:repeat(3,1fr)}.award-leaders{grid-template-columns:1fr 1fr}}
+
+/* v5.15.2 live ride navigation */
+.ride-navigation{margin-top:16px;background:#fff;border:1px solid #dce6ef;border-radius:24px;padding:20px;box-shadow:0 10px 26px rgba(9,45,76,.08)}
+.ride-nav-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.ride-nav-head small{display:block;font-size:8px;letter-spacing:.16em;font-weight:900;color:var(--red)}.ride-nav-head h2{font-size:20px;margin:4px 0 0}.gps-pill{border-radius:999px;padding:7px 10px;background:#eef3f6;color:#6c8192;font-size:9px;font-weight:900;white-space:nowrap}.gps-pill.live{background:#e9f8f0;color:#15844c}.gps-pill.error{background:#fff0f1;color:#c72d42}
+.ride-controls{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end}.ride-control label,.custom-destination label{display:block;font-size:9px;font-weight:800;color:#708595;margin-bottom:5px}.ride-control select,.custom-destination input{width:100%;min-height:46px;border:1px solid #d5e1ea;border-radius:13px;padding:9px 11px;background:#fbfdff;color:var(--ink);font:inherit;font-size:16px}.custom-destination[hidden]{display:none}.ride-start{min-height:46px;border:0;border-radius:13px;background:linear-gradient(135deg,#ef233c,#d9162f);color:#fff;padding:10px 16px;font:inherit;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 9px 18px rgba(239,35,60,.18)}.ride-start:disabled{opacity:.55;cursor:wait}.ride-privacy{margin-top:7px;font-size:8px;color:#90a0ab}
+.ride-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:15px}.ride-kpi{background:#f4f8fb;border-radius:14px;padding:11px 10px;min-width:0}.ride-kpi span{display:block;font-size:8px;font-weight:800;color:#7d8f9e}.ride-kpi b{display:block;margin-top:3px;font-size:20px;color:#082f53;white-space:nowrap}.ride-kpi b small{font-size:10px}.ride-next-climb{margin-top:10px;border-left:4px solid var(--red);background:#fff6f7;border-radius:0 12px 12px 0;padding:10px 12px;font-size:10px;line-height:1.55;color:#6d4b51}.ride-next-climb b{color:#b82037}.ride-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.ride-action-btn{border:1px solid #d4e0e9;background:#fff;border-radius:999px;padding:9px 12px;color:#173e60;font:inherit;font-size:9px;font-weight:900;cursor:pointer}.ride-action-btn.active{background:#0b4777;color:#fff;border-color:#0b4777}.ride-action-btn:disabled{opacity:.45;cursor:not-allowed}.ride-message{min-height:18px;margin-top:9px;font-size:9px;color:#708595}.ride-message.error{color:#c72d42}.ride-message.ok{color:#16834e}
+.ride-map-wrap{position:relative;margin-top:10px;border:1px solid #d9e4ec;border-radius:18px;overflow:hidden;background:#eaf1f5}.ride-map{height:290px;width:100%}.ride-map-fallback{display:none;padding:28px 16px;text-align:center;font-size:11px;color:#6e8292}.leaflet-container{font-family:inherit}.leaflet-control-attribution{font-size:8px!important}
+.profile-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:17px 2px 8px}.profile-head h3{font-size:14px;margin:0}.profile-head small{font-size:8px;color:#8a9aa6}.profile-chart{border:1px solid #e0e8ee;background:#fbfdff;border-radius:16px;padding:8px;min-height:220px;overflow:hidden}.profile-chart svg{display:block;width:100%;height:auto}.profile-empty{min-height:202px;display:grid;place-items:center;text-align:center;color:#8da0ad;font-size:10px;padding:20px}.grade-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:8px;color:#7e8f9b}.grade-legend span{display:inline-flex;align-items:center;gap:5px}.grade-dot{width:9px;height:9px;border-radius:3px;display:inline-block}.grade-dot.down{background:#4f91c9}.grade-dot.flat{background:#a8b5bf}.grade-dot.up{background:#ef7c8c}.grade-dot.hard{background:#c51e36}
+@media(max-width:640px){.ride-navigation{padding:14px;border-radius:20px}.ride-controls{grid-template-columns:1fr}.ride-start{width:100%}.ride-kpis{grid-template-columns:1fr 1fr}.ride-map{height:250px}.ride-actions{display:grid;grid-template-columns:1fr 1fr}.ride-action-btn:last-child{grid-column:1/-1}.ride-nav-head h2{font-size:18px}}
 
 </style>
 </head>
@@ -96,11 +106,45 @@
       <div class="next-main">
         <div class="next-campus">
           <div class="campus-thumb" id="nextCampusThumb"><img src="assets/campuses/ogaki-hombu.png" alt="大垣本部校の写真"></div>
-          <div><div class="next-name" id="nextCampusName">大垣本部校</div><div class="next-place" id="nextCampusPlace"><span>●</span>岐阜県大垣市</div><span class="route-chip">◇ ルートを確認</span></div>
+          <div><div class="next-name" id="nextCampusName">大垣本部校</div><div class="next-place" id="nextCampusPlace"><span>●</span>岐阜県大垣市</div><button class="route-chip" id="routeChipBtn" type="button">◇ 現在地からルート</button></div>
         </div>
-        <div class="next-meta"><div class="meta-row"><span>距離</span><b>12.4 <small>km</small></b></div><div class="meta-row"><span>到着目安</span><b style="font-size:18px">約45分</b></div></div>
+        <div class="next-meta"><div class="meta-row"><span>距離</span><b id="nextRouteDistance">-- <small>km</small></b></div><div class="meta-row"><span>到着目安</span><b id="nextRouteEta" style="font-size:18px">--</b></div></div>
         <button class="arrive-main" id="nextArriveBtn" type="button">● 到着　›</button>
       </div>
+    </section>
+
+
+
+    <section class="ride-navigation" id="rideNavigation">
+      <div class="ride-nav-head">
+        <div><small>LIVE RIDE NAVIGATION</small><h2>現在地 → 行きたい場所</h2></div>
+        <span class="gps-pill" id="gpsStatus">GPS OFF</span>
+      </div>
+      <div class="ride-controls">
+        <div class="ride-control"><label for="rideDestination">目的地</label><select id="rideDestination">
+          <option value="岐阜本部校">岐阜本部校</option><option value="岐南校">岐南校</option><option value="神戸校">神戸校</option><option value="大垣本部校" selected>大垣本部校</option><option value="穂積校">穂積校</option><option value="custom">その他の場所</option>
+        </select></div>
+        <div class="custom-destination" id="customDestinationWrap" hidden><label for="customDestination">場所・住所</label><input id="customDestination" placeholder="例：岐阜公園 / 岐阜市○○"></div>
+        <button class="ride-start" id="rideStartBtn" type="button">現在地から計算</button>
+      </div>
+      <div class="ride-privacy">現在地はルート計算にだけ使用し、このアプリのデータベースには保存しません。</div>
+      <div class="ride-kpis">
+        <div class="ride-kpi"><span>残り距離</span><b id="rideDistance">-- <small>km</small></b></div>
+        <div class="ride-kpi"><span>到着目安</span><b id="rideEta">--</b></div>
+        <div class="ride-kpi"><span>獲得標高</span><b id="rideAscent">-- <small>m</small></b></div>
+        <div class="ride-kpi"><span>最大斜度目安</span><b id="rideMaxGrade">-- <small>%</small></b></div>
+      </div>
+      <div class="ride-next-climb" id="rideClimbHint"><b>斜度情報</b>　ルート計算後、この先の上り区間を表示します。</div>
+      <div class="ride-actions">
+        <button class="ride-action-btn" id="wakeLockBtn" type="button">☀ 画面を消さない OFF</button>
+        <button class="ride-action-btn" id="recalcRouteBtn" type="button" disabled>↻ ルート再計算</button>
+        <button class="ride-action-btn" id="openExternalRouteBtn" type="button">↗ 地図アプリで開く</button>
+      </div>
+      <div class="ride-message" id="rideRouteMessage">「現在地から計算」を押すとGPSを使います。</div>
+      <div class="ride-map-wrap"><div class="ride-map" id="rideMap"></div><div class="ride-map-fallback" id="rideMapFallback">地図を読み込めませんでした。ルートの数値と標高グラフは利用できます。</div></div>
+      <div class="profile-head"><h3>標高・斜度の変化</h3><small>斜度は約100mごとの標高差から算出した目安</small></div>
+      <div class="profile-chart" id="elevationChart"><div class="profile-empty">ルートを計算すると、ここに標高と斜度の変化が出ます。</div></div>
+      <div class="grade-legend"><span><i class="grade-dot down"></i>下り</span><span><i class="grade-dot flat"></i>±3%</span><span><i class="grade-dot up"></i>3〜8%</span><span><i class="grade-dot hard"></i>8%以上</span></div>
     </section>
 
     <section class="progress-card"><div class="progress-line" id="progressLine"></div></section>
@@ -119,17 +163,18 @@
     <div class="toast" id="toast" role="status"></div>
   </main>
 </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js?v=58"></script>
 <script src="history-data.js?v=58"></script>
 <script>
 const KEY='homes20RideState';
 const campuses=[
-  {name:'岐阜本部校',day:1,time:'09:15',place:'岐阜市橋本町',displayPlace:'岐阜県岐阜市',photo:'assets/campuses/gifu-hombu.png'},
-  {name:'岐南校',day:1,time:'12:40',place:'羽島郡岐南町',displayPlace:'岐阜県羽島郡岐南町',photo:'assets/campuses/ginan.png'},
-  {name:'神戸校',day:2,time:'14:32',place:'安八郡神戸町',displayPlace:'岐阜県安八郡神戸町',photo:'assets/campuses/goudo.png'},
-  {name:'大垣本部校',day:2,time:'',place:'大垣市',displayPlace:'岐阜県大垣市',photo:'assets/campuses/ogaki-hombu.png'},
-  {name:'穂積校',day:2,time:'',place:'瑞穂市',displayPlace:'岐阜県瑞穂市',photo:'assets/campuses/hozumi.png'}
+  {name:'岐阜本部校',day:1,time:'09:15',place:'岐阜市橋本町',displayPlace:'岐阜県岐阜市',address:'岐阜県岐阜市橋本町2-52 岐阜シティ・タワー43',photo:'assets/campuses/gifu-hombu.png'},
+  {name:'岐南校',day:1,time:'12:40',place:'羽島郡岐南町',displayPlace:'岐阜県羽島郡岐南町',address:'岐阜県羽島郡岐南町三宅4-109-1',photo:'assets/campuses/ginan.png'},
+  {name:'神戸校',day:2,time:'14:32',place:'安八郡神戸町',displayPlace:'岐阜県安八郡神戸町',address:'岐阜県安八郡神戸町大字丈六道12',photo:'assets/campuses/goudo.png'},
+  {name:'大垣本部校',day:2,time:'',place:'大垣市',displayPlace:'岐阜県大垣市',address:'岐阜県大垣市林町5丁目18 光和ビル',photo:'assets/campuses/ogaki-hombu.png'},
+  {name:'穂積校',day:2,time:'',place:'瑞穂市',displayPlace:'岐阜県瑞穂市',address:'岐阜県瑞穂市別府花塚二の町2132',photo:'assets/campuses/hozumi.png'}
 ];
 const defaultState={current:'神戸校',visited:{'岐阜本部校':'09:15','岐南校':'12:40','神戸校':'14:32'},updatedAt:'14:32'};
 let channel=null;try{channel=new BroadcastChannel('homes20-ride')}catch(e){}
@@ -137,7 +182,7 @@ function cloneDefault(){return JSON.parse(JSON.stringify(defaultState))}
 function getState(){try{return JSON.parse(localStorage.getItem(KEY))||cloneDefault()}catch(e){return cloneDefault()}}
 async function saveState(state){localStorage.setItem(KEY,JSON.stringify(state));if(channel)channel.postMessage({type:'ride-update'});render();if(adminSb){const {error}=await adminSb.from('anniversary_ride_state').update({current_campus:state.current||null,visited:state.visited||{},updated_at:new Date().toISOString()}).eq('id',1);if(error)console.warn('RIDE状態のクラウド保存に失敗',error);}}
 function nowTime(){return new Intl.DateTimeFormat('ja-JP',{hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date())}
-function arrive(name){const state=getState();const t=nowTime();state.current=name;state.visited=state.visited||{};state.visited[name]=t;state.updatedAt=t;saveState(state);toast(name+' に到着として更新しました')}
+function arrive(name){const state=getState();const t=nowTime();state.current=name;state.visited=state.visited||{};state.visited[name]=t;state.updatedAt=t;saveState(state);toast(name+' に到着として更新しました');setTimeout(syncRideDestinationToNext,0)}
 function nextUnvisited(state){return campuses.find(c=>!state.visited?.[c.name])||campuses[campuses.length-1]}
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
 function thumbHtml(campus,altClass=''){return `<img src="${campus.photo}" alt="${escapeHtml(campus.name)}の校舎写真" class="${altClass}">`}
@@ -161,7 +206,7 @@ function render(){
   document.querySelectorAll('[data-campus]').forEach(btn=>{if(!btn.disabled)btn.addEventListener('click',()=>arrive(btn.dataset.campus))});
 }
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2200)}
-document.getElementById('mapBtn').addEventListener('click',()=>{const state=getState();const next=nextUnvisited(state);const q=encodeURIComponent(`${next.name} ${next.place}`);window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank','noopener');});
+document.getElementById('mapBtn').addEventListener('click',()=>{document.getElementById('rideNavigation')?.scrollIntoView({behavior:'smooth',block:'start'});});
 document.querySelectorAll('[data-record]').forEach(btn=>btn.addEventListener('click',()=>{const kind=btn.dataset.record==='写真'?'photo':btn.dataset.record==='動画'?'video':'message';location.href=`index.html?open=upload&kenji=${kind}`;}));
 if(channel)channel.onmessage=()=>render();
 window.addEventListener('storage',e=>{if(e.key===KEY)render()});
@@ -172,6 +217,92 @@ const adminSb=(ADMIN_SB_CONFIG.url&&ADMIN_SB_CONFIG.publishableKey&&window.supab
 async function loadRemoteRideState(){if(!adminSb)return;const {data,error}=await adminSb.from('anniversary_ride_state').select('current_campus,visited,updated_at').eq('id',1).maybeSingle();if(error){console.warn('RIDE状態取得失敗',error);return;}if(data){const state={current:data.current_campus||'',visited:data.visited||{},updatedAt:data.updated_at||''};localStorage.setItem(KEY,JSON.stringify(state));render();}}
 if(adminSb?.channel){try{adminSb.channel('kenji-ride-state').on('postgres_changes',{event:'UPDATE',schema:'public',table:'anniversary_ride_state'},()=>loadRemoteRideState()).subscribe();}catch(e){console.warn(e);}}
 loadRemoteRideState();
+
+
+// v5.15.2 KENJI live ride navigation
+const rideRuntime={position:null,watchId:null,wakeLock:null,wakeWanted:false,map:null,routeLine:null,currentMarker:null,destinationMarker:null,lastRouteAt:0,lastRoutePosition:null,lastRoute:null,calculating:false,destinationTouched:false};
+const rideEls={
+  destination:document.getElementById('rideDestination'),customWrap:document.getElementById('customDestinationWrap'),custom:document.getElementById('customDestination'),start:document.getElementById('rideStartBtn'),gps:document.getElementById('gpsStatus'),distance:document.getElementById('rideDistance'),eta:document.getElementById('rideEta'),ascent:document.getElementById('rideAscent'),maxGrade:document.getElementById('rideMaxGrade'),climb:document.getElementById('rideClimbHint'),message:document.getElementById('rideRouteMessage'),chart:document.getElementById('elevationChart'),wake:document.getElementById('wakeLockBtn'),recalc:document.getElementById('recalcRouteBtn'),external:document.getElementById('openExternalRouteBtn'),nextDistance:document.getElementById('nextRouteDistance'),nextEta:document.getElementById('nextRouteEta')
+};
+function setRideMessage(text,kind=''){rideEls.message.textContent=text;rideEls.message.className='ride-message'+(kind?' '+kind:'')}
+function formatDistance(m){if(!Number.isFinite(Number(m)))return '--';return Number(m)>=1000?(Number(m)/1000).toFixed(Number(m)>=10000?1:1):Math.round(Number(m))+' m'}
+function formatDuration(s){s=Math.max(0,Number(s)||0);const min=Math.round(s/60);if(min<60)return `約${min}分`;const h=Math.floor(min/60),m=min%60;return `約${h}時間${m?m+'分':''}`}
+function distanceBetween(a,b){if(!a||!b)return Infinity;const R=6371000,rad=x=>x*Math.PI/180,dLat=rad(b.lat-a.lat),dLon=rad(b.lng-a.lng),la1=rad(a.lat),la2=rad(b.lat);const x=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
+function destinationPayload(){
+  const value=rideEls.destination.value;
+  if(value==='custom'){const text=rideEls.custom.value.trim();return text?{text,label:text}:null}
+  const c=campuses.find(x=>x.name===value);return c?{text:`${c.name} ${c.address}`,label:c.name}:null;
+}
+function destinationLabel(){const d=destinationPayload();return d?.label||''}
+function syncRideDestinationToNext(){
+  if(!rideEls.destination)return;const next=nextUnvisited(getState());
+  rideRuntime.destinationTouched=false;rideEls.destination.value=next.name;rideEls.customWrap.hidden=true;
+  rideRuntime.lastRoute=null;resetRideMetrics();if(rideRuntime.position)setTimeout(()=>requestRideRoute(true),80);
+}
+function resetRideMetrics(){rideEls.distance.innerHTML='-- <small>km</small>';rideEls.eta.textContent='--';rideEls.ascent.innerHTML='-- <small>m</small>';rideEls.maxGrade.innerHTML='-- <small>%</small>';rideEls.nextDistance.innerHTML='-- <small>km</small>';rideEls.nextEta.textContent='--';rideEls.climb.innerHTML='<b>斜度情報</b>　ルート計算後、この先の上り区間を表示します。';rideEls.chart.innerHTML='<div class="profile-empty">ルートを計算すると、ここに標高と斜度の変化が出ます。</div>'}
+function ensureRideMap(){
+  if(rideRuntime.map||!window.L)return rideRuntime.map;
+  try{
+    rideRuntime.map=L.map('rideMap',{zoomControl:true,attributionControl:true}).setView([35.39,136.68],11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(rideRuntime.map);
+    setTimeout(()=>rideRuntime.map.invalidateSize(),100);
+  }catch(e){console.warn(e);document.getElementById('rideMap').style.display='none';document.getElementById('rideMapFallback').style.display='block'}
+  return rideRuntime.map;
+}
+function updatePositionMarker(){
+  const map=ensureRideMap();if(!map||!rideRuntime.position)return;const ll=[rideRuntime.position.lat,rideRuntime.position.lng];
+  if(!rideRuntime.currentMarker)rideRuntime.currentMarker=L.circleMarker(ll,{radius:8,color:'#07355f',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(map).bindTooltip('現在地');else rideRuntime.currentMarker.setLatLng(ll);
+}
+function drawRideRoute(data){
+  const map=ensureRideMap();if(!map||!Array.isArray(data.route)||data.route.length<2)return;
+  if(rideRuntime.routeLine)map.removeLayer(rideRuntime.routeLine);rideRuntime.routeLine=L.polyline(data.route,{color:'#ef233c',weight:6,opacity:.88,lineCap:'round'}).addTo(map);
+  if(rideRuntime.destinationMarker)map.removeLayer(rideRuntime.destinationMarker);const end=data.route[data.route.length-1];rideRuntime.destinationMarker=L.marker(end).addTo(map).bindTooltip(data.destination?.label||destinationLabel());
+  updatePositionMarker();map.fitBounds(rideRuntime.routeLine.getBounds().pad(.12),{maxZoom:16});
+}
+function gradeColor(g){if(g<=-3)return '#4f91c9';if(g<3)return '#a8b5bf';if(g<8)return '#ef7c8c';return '#c51e36'}
+function renderProfileChart(data){
+  const ep=Array.isArray(data.elevationProfile)?data.elevationProfile:[],gp=Array.isArray(data.gradeProfile)?data.gradeProfile:[];if(ep.length<2){rideEls.chart.innerHTML='<div class="profile-empty">標高データを取得できませんでした。</div>';return}
+  const W=720,H=248,left=44,right=16,top=18,profileBottom=145,gradeTop=178,gradeBottom=220,total=Math.max(1,ep.at(-1).distanceM),elevs=ep.map(x=>Number(x.elevationM)||0),emin=Math.floor(Math.min(...elevs)-5),emax=Math.ceil(Math.max(...elevs)+5),erange=Math.max(10,emax-emin),x=d=>left+(W-left-right)*(d/total),y=e=>profileBottom-(profileBottom-top)*((e-emin)/erange);
+  const line=ep.map((p,i)=>`${i?'L':'M'} ${x(p.distanceM).toFixed(1)} ${y(p.elevationM).toFixed(1)}`).join(' ');const area=`M ${x(0)} ${profileBottom} ${line.slice(1)} L ${x(total)} ${profileBottom} Z`;
+  const bars=gp.slice(1).map((p,i)=>{const prev=gp[i],x1=x(prev.distanceM),x2=x(p.distanceM),g=Number(p.grade)||0,max=15,h=Math.min(Math.abs(g),max)/max*((gradeBottom-gradeTop)/2),mid=(gradeTop+gradeBottom)/2,yy=g>=0?mid-h:mid;return `<rect x="${x1.toFixed(1)}" y="${yy.toFixed(1)}" width="${Math.max(1,x2-x1+0.5).toFixed(1)}" height="${Math.max(1,h).toFixed(1)}" fill="${gradeColor(g)}" rx="1"/>`}).join('');
+  const km=(total/1000),midKm=km/2;rideEls.chart.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="標高と斜度の変化"><line x1="${left}" y1="${profileBottom}" x2="${W-right}" y2="${profileBottom}" stroke="#d7e1e8"/><path d="${area}" fill="#e8f1f7"/><path d="${line}" fill="none" stroke="#07355f" stroke-width="3" stroke-linejoin="round"/><text x="6" y="${top+5}" font-size="10" fill="#718596">${emax}m</text><text x="6" y="${profileBottom}" font-size="10" fill="#718596">${emin}m</text><line x1="${left}" y1="${(gradeTop+gradeBottom)/2}" x2="${W-right}" y2="${(gradeTop+gradeBottom)/2}" stroke="#d7e1e8"/>${bars}<text x="${left}" y="242" font-size="10" fill="#718596">0</text><text x="${x(total/2)-12}" y="242" font-size="10" fill="#718596">${midKm.toFixed(1)}km</text><text x="${W-right-38}" y="242" font-size="10" fill="#718596">${km.toFixed(1)}km</text></svg>`;
+}
+function climbHint(data){
+  const gp=Array.isArray(data.gradeProfile)?data.gradeProfile:[];let start=-1,end=-1,sum=0,count=0;for(let i=1;i<gp.length;i++){const g=Number(gp[i].grade)||0;if(g>=4){if(start<0)start=i-1;end=i;sum+=g;count++}else if(start>=0&&count>=3)break;else if(start>=0){start=-1;end=-1;sum=0;count=0}}
+  if(start>=0&&end>start&&count){const s=gp[start].distanceM,e=gp[end].distanceM,avg=sum/count;return `<b>この先の上り</b>　${(s/1000).toFixed(1)}km地点から約${((e-s)/1000).toFixed(1)}km、平均${avg.toFixed(1)}%前後。`}return '<b>この先</b>　大きな連続上りは少なめのルートです。';
+}
+function renderRouteResult(data){
+  rideRuntime.lastRoute=data;const s=data.summary||{},km=(Number(s.distanceM)||0)/1000;rideEls.distance.innerHTML=`${km.toFixed(1)} <small>km</small>`;rideEls.eta.textContent=formatDuration(s.durationS);rideEls.ascent.innerHTML=`${Math.round(Number(s.ascentM)||0)} <small>m</small>`;rideEls.maxGrade.innerHTML=`${Number(s.maxGrade||0).toFixed(1)} <small>%</small>`;rideEls.climb.innerHTML=climbHint(data);
+  const next=nextUnvisited(getState());if(rideEls.destination.value===next.name){rideEls.nextDistance.innerHTML=`${km.toFixed(1)} <small>km</small>`;rideEls.nextEta.textContent=formatDuration(s.durationS)}
+  drawRideRoute(data);renderProfileChart(data);rideEls.recalc.disabled=false;setRideMessage(`${data.destination?.label||destinationLabel()} までのロードバイク向けルートを更新しました。`,'ok');
+}
+async function requestRideRoute(force=false){
+  if(rideRuntime.calculating)return;if(!rideRuntime.position){setRideMessage('現在地を取得してからルートを計算します。');return}
+  const destination=destinationPayload();if(!destination){setRideMessage('目的地を入力してください。','error');return}
+  const cfg=window.HOMES_SUPABASE||{};if(!cfg.url){setRideMessage('Supabase設定を読み込めません。','error');return}
+  const now=Date.now();if(!force&&rideRuntime.lastRouteAt&&now-rideRuntime.lastRouteAt<45000)return;rideRuntime.calculating=true;rideEls.start.disabled=true;rideEls.start.textContent='計算中…';setRideMessage('自転車ルートと標高を計算しています…');
+  try{const endpoint=cfg.url.replace(/\/$/,'')+'/functions/v1/ride-route';const r=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json','apikey':cfg.publishableKey||''},body:JSON.stringify({origin:rideRuntime.position,destination,profile:'cycling-road'})});const out=await r.json().catch(()=>({}));if(!r.ok)throw new Error(out.error||`ルートAPI ${r.status}`);rideRuntime.lastRouteAt=Date.now();rideRuntime.lastRoutePosition={...rideRuntime.position};renderRouteResult(out)}catch(e){console.warn(e);setRideMessage(e?.message||'ルート計算に失敗しました。','error')}finally{rideRuntime.calculating=false;rideEls.start.disabled=false;rideEls.start.textContent=rideRuntime.watchId!==null?'RIDE更新':'現在地から計算'}
+}
+function onRidePosition(pos){
+  rideRuntime.position={lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy};rideEls.gps.textContent=`GPS ±${Math.round(pos.coords.accuracy||0)}m`;rideEls.gps.className='gps-pill live';updatePositionMarker();
+  const moved=distanceBetween(rideRuntime.lastRoutePosition,rideRuntime.position),age=Date.now()-rideRuntime.lastRouteAt;if(!rideRuntime.lastRoute||moved>250||(age>120000&&moved>80))requestRideRoute(false);
+}
+function onRidePositionError(err){const msg=err?.code===1?'位置情報の利用が許可されていません。ブラウザ設定から許可してください。':'現在地を取得できませんでした。';if(rideRuntime.watchId!==null){navigator.geolocation.clearWatch(rideRuntime.watchId);rideRuntime.watchId=null}rideEls.start.disabled=false;rideEls.start.textContent='現在地から計算';rideEls.gps.textContent='GPS ERROR';rideEls.gps.className='gps-pill error';setRideMessage(msg,'error')}
+function startRideGps(){
+  if(!navigator.geolocation){setRideMessage('この端末は位置情報に対応していません。','error');return}
+  if(rideRuntime.watchId!==null){requestRideRoute(true);return}
+  rideEls.start.disabled=true;rideEls.start.textContent='GPS取得中…';rideRuntime.watchId=navigator.geolocation.watchPosition(onRidePosition,onRidePositionError,{enableHighAccuracy:true,maximumAge:10000,timeout:18000});
+  setRideMessage('GPSを取得しています…');setTimeout(()=>{if(rideRuntime.watchId!==null&&!rideRuntime.position){rideEls.start.disabled=false;rideEls.start.textContent='現在地から計算'}},19000);
+}
+async function setWakeLock(wanted){
+  rideRuntime.wakeWanted=wanted;if(!('wakeLock' in navigator)){rideEls.wake.textContent='☀ 画面常時ON 非対応';rideEls.wake.disabled=true;return}
+  try{if(wanted){if(!rideRuntime.wakeLock)rideRuntime.wakeLock=await navigator.wakeLock.request('screen');rideEls.wake.classList.add('active');rideEls.wake.textContent='☀ 画面を消さない ON';rideRuntime.wakeLock.addEventListener('release',()=>{rideRuntime.wakeLock=null;if(!rideRuntime.wakeWanted){rideEls.wake.classList.remove('active');rideEls.wake.textContent='☀ 画面を消さない OFF'}})}else{rideRuntime.wakeWanted=false;if(rideRuntime.wakeLock)await rideRuntime.wakeLock.release();rideRuntime.wakeLock=null;rideEls.wake.classList.remove('active');rideEls.wake.textContent='☀ 画面を消さない OFF'}}catch(e){console.warn(e);rideEls.wake.classList.remove('active');rideEls.wake.textContent='☀ 常時ONにできませんでした'}
+}
+function openExternalRoute(){const d=destinationPayload();if(!d){setRideMessage('目的地を入力してください。','error');return}const q=encodeURIComponent(d.text||d.label);window.open(`https://www.google.com/maps/dir/?api=1&destination=${q}`,'_blank','noopener')}
+rideEls.destination?.addEventListener('change',()=>{rideRuntime.destinationTouched=true;rideEls.customWrap.hidden=rideEls.destination.value!=='custom';resetRideMetrics();rideRuntime.lastRoute=null;if(rideRuntime.position&&rideEls.destination.value!=='custom')requestRideRoute(true)});
+rideEls.custom?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();requestRideRoute(true)}});rideEls.start?.addEventListener('click',startRideGps);rideEls.recalc?.addEventListener('click',()=>requestRideRoute(true));rideEls.external?.addEventListener('click',openExternalRoute);rideEls.wake?.addEventListener('click',()=>setWakeLock(!rideRuntime.wakeWanted));document.getElementById('routeChipBtn')?.addEventListener('click',()=>{document.getElementById('rideNavigation')?.scrollIntoView({behavior:'smooth',block:'start'});startRideGps()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&rideRuntime.wakeWanted&&!rideRuntime.wakeLock)setWakeLock(true)});
+ensureRideMap();syncRideDestinationToNext();
 const adminHistory=Array.isArray(window.HOMES_HISTORY)?window.HOMES_HISTORY:[];
 function adminTodayParts(){const p=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric'}).formatToParts(new Date());const v=t=>Number(p.find(x=>x.type===t)?.value||0);return {year:v('year'),month:v('month'),day:v('day')};}
 function adminDateKey(){const t=adminTodayParts();return `${t.year}-${String(t.month).padStart(2,'0')}-${String(t.day).padStart(2,'0')}`;}

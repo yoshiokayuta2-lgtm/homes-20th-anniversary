@@ -157,3 +157,17 @@ SQL追加はありません。
 - Realtimeでいいね数を再取得した場合も現在位置を維持
 - 投稿カテゴリに「その他」を追加
 - Service Worker cache: homes20-v5151
+
+
+## v5.15.2 KENJI RIDE NAVIGATION
+- KENJI MODEでスマホGPSから現在地を取得
+- 次の校舎または任意の場所まで、ロードバイク向け実ルートを計算
+- 残り距離・到着目安・獲得標高・最大斜度目安を表示
+- OpenStreetMap上にルートをアプリ内表示
+- 標高グラフと約100mごとの斜度変化を表示
+- 走行中は250m以上移動した場合などにルートを自動更新
+- Screen Wake Lock対応端末では「画面を消さない」をONに可能
+- GPS座標はルート計算にだけ利用し、DBには保存しません
+
+### 初回設定
+`KENJI-RIDE-SETUP.md` を参照し、OpenRouteService API KeyをSupabase Secret `ORS_API_KEY` に登録して `ride-route` Edge FunctionをDeployしてください。
