@@ -22,7 +22,7 @@
 <header class="topbar"><div class="brand"><strong>20周年 運営管理</strong><span>HOMES 20th ANNIVERSARY</span></div><div class="top-actions"><a class="ghost" href="index.html">一般画面</a><a class="ghost" href="ride-admin.html">KENJI MODE</a><button class="ghost" hidden="" id="logoutBtn">ログアウト</button></div></header>
 <section class="hero"><small>20TH OFFICE CONTROL</small><h1>20周年を、<br/>数字でも運営する。</h1><p>参加状況・表彰候補・投稿・沿革・FINAL MOVIE・お知らせを一括管理します。</p></section>
 <main class="content">
-<section class="login-card" id="loginCard"><h2>管理者ログイン</h2><div style="margin:0 0 14px;font-size:10px;font-weight:900;color:#c92a22;letter-spacing:.08em;">BUILD v5.14.5</div><p>Supabase Secretsに設定した管理者コードを入力してください。</p><form id="loginForm"><div class="field"><label>管理者コード</label><input autocomplete="current-password" id="adminCode" required="" type="password"/></div><button class="primary" type="submit">管理アプリを開く</button><div class="error" id="loginError"></div></form></section>
+<section class="login-card" id="loginCard"><h2>管理者ログイン</h2><div style="margin:0 0 14px;font-size:10px;font-weight:900;color:#c92a22;letter-spacing:.08em;">BUILD v5.15.0</div><p>Supabase Secretsに設定した管理者コードを入力してください。</p><form id="loginForm"><div class="field"><label>管理者コード</label><input autocomplete="current-password" id="adminCode" required="" type="password"/></div><button class="primary" type="submit">管理アプリを開く</button><div class="error" id="loginError"></div></form></section>
 <section class="dashboard" id="dashboard">
 <div class="section-kicker">OVERVIEW</div>
 <div class="stats">
@@ -37,6 +37,7 @@
 <div class="section-kicker">AWARDS</div>
 <section class="panel"><div class="panel-head"><div><h2>表彰ダッシュボード</h2><small>現時点の候補。パーティー直前まで自動集計</small></div></div><div class="award-tabs" id="awardTabs"></div><div class="award-grid" id="awardGrid"></div></section>
 <section class="panel"><div class="panel-head"><div><h2>社員別 活動スコア</h2><small>ログイン・投稿・ホーム画面化・縦動画・沿革追加を横断確認</small></div></div><div class="ranking" id="peopleTable"></div></section>
+<section class="panel"><div class="panel-head"><div><h2>人気の思い出</h2><small>一般アプリの「いいね」をリアルタイム集計</small></div><button class="mini" id="refreshLikes">更新</button></div><div class="ranking" id="likeRanking"></div></section>
 <div class="section-kicker">FOLLOW UP</div>
 <section class="panel"><div class="panel-head"><div><h2>未参加者フォロー</h2><small>催促対象を自動抽出</small></div></div><div class="follow-groups" id="followGroups"></div></section>
 <section class="panel"><div class="panel-head"><div><h2>対象社員名簿</h2><small>1行1名。「氏名,所属」で登録できます</small></div><button class="mini red" id="saveRoster">名簿を保存</button></div><textarea id="rosterText" placeholder="吉岡,岐阜本部校\n山田,大垣本部校" style="width:100%;min-height:150px;border:1px solid #ded4ce;border-radius:13px;padding:12px;font:inherit;font-size:14px"></textarea><p class="roster-note">名簿が未登録でも利用できますが、参加率・未ログイン人数は正確に算出できません。保存時はここにある内容で名簿を置き換えます。</p></section>
@@ -50,5 +51,5 @@
 <section class="panel"><div class="panel-head"><div><h2>投稿管理</h2><small>公開設定・ムービー候補・完全削除</small></div><button class="mini" id="refreshPosts">更新</button></div><div class="filters"><input id="postSearch" placeholder="タイトル・投稿者・所属で検索"/><select id="kindFilter"><option value="">写真＋動画</option><option value="video">動画のみ</option><option value="image">写真のみ</option></select><select id="candidateFilter"><option value="">すべて</option><option value="candidate">ムービー候補</option></select></div><div class="post-list" id="postList"></div></section>
 </section>
 </main></div><div class="toast" id="toast"></div>
-<script defer="" src="admin.js?v=5144"></script>
+<script defer="" src="admin.js?v=5150"></script>
 </body></html>

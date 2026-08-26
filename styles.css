@@ -90,3 +90,20 @@
 .announcement-detail-content p{font-size:15px;line-height:2;color:#4a403b;white-space:pre-wrap;margin:0;text-align:left;word-break:break-word}
 .announcement-detail-footer{padding:15px 24px calc(15px + env(safe-area-inset-bottom));text-align:center;font-size:9px;color:#a2948d;border-top:1px solid #eadfd6;background:#fbf7f0}
 @media(min-width:700px){.announcement-detail-dialog{width:min(680px,92vw);height:min(86vh,760px);max-height:86vh;margin:auto;border-radius:28px}.announcement-detail-card{min-height:100%;height:100%;border-radius:28px;overflow:auto}.announcement-detail-header{padding-top:12px}}
+
+
+/* v5.14.9 - long announcement safety */
+.announcement-dialog,.announcement-dialog-card,.announcement-history-list,.announcement-history-item,.announcement-history-head,.announcement-detail-dialog,.announcement-detail-card,.announcement-detail-content{min-width:0;max-width:100%}
+.announcement-dialog-card{overflow-x:hidden;overscroll-behavior:contain}
+.announcement-history-item{width:100%;overflow:hidden}
+.announcement-history-head b,.announcement-history-item p,.announcement-detail-content h2,.announcement-detail-content p{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+.announcement-history-item p{white-space:pre-wrap}
+.announcement-detail-card{overflow-x:hidden}
+.announcement-detail-content{overflow-x:hidden}
+@media(max-width:699px){
+  .announcement-dialog{width:calc(100vw - 24px);margin:auto}
+  .announcement-dialog-card{width:100%}
+  .announcement-detail-dialog{inset:0;width:100vw;height:100dvh;margin:0}
+}
+/* v5.15.0 likes */
+.post-meta{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.post-meta-copy{min-width:0;display:grid;gap:2px}.post-like-btn{flex:none;border:0;background:rgba(255,255,255,.88);color:#8f837c;border-radius:999px;padding:5px 8px;display:inline-flex;align-items:center;gap:4px;font:inherit;cursor:pointer;box-shadow:0 3px 10px rgba(50,35,28,.08)}.post-like-btn span{font-size:17px;line-height:1}.post-like-btn b{font-size:10px}.post-like-btn.liked{color:#c92a22;background:#fff1ef}.post-detail-like{border:1px solid #ead8d3;background:#fff;color:#7f716a;border-radius:999px;padding:10px 14px;display:inline-flex;align-items:center;gap:7px;font:inherit;font-weight:800;cursor:pointer;margin-top:15px}.post-detail-like span{font-size:21px;line-height:1}.post-detail-like b{font-size:12px}.post-detail-like em{font-size:10px;font-style:normal;color:#a0928a}.post-detail-like.liked{color:#c92a22;border-color:#efc0ba;background:#fff2f0}.post-detail-like.liked em{color:#c92a22}

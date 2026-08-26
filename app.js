@@ -19,10 +19,45 @@ function escapeHtml(v){
 }
 let autoScrollTimer=null;
 let autoScrollResumeTimer=null;
+let currentStaff=null;
+let postLikes=new Map();
+let likedPostIds=new Set();
+
+function likeCount(postId){return Number(postLikes.get(String(postId))||0);}
+function likeButtonHtml(post){
+  if(!post?.id) return '';
+  const on=likedPostIds.has(String(post.id));
+  return `<button type="button" class="post-like-btn ${on?'liked':''}" data-like-post="${escapeHtml(post.id)}" aria-label="${on?'いいねを取り消す':'いいねする'}"><span>${on?'♥':'♡'}</span><b>${likeCount(post.id)}</b></button>`;
+}
+async function loadPostLikes(){
+  if(!sb) return;
+  const {data,error}=await sb.from('anniversary_post_likes').select('post_id,staff_name').limit(50000);
+  if(error){console.warn('いいね取得失敗',error);return;}
+  const counts=new Map(), mine=new Set();
+  const me=(currentStaff||loadStaffLogin())?.name||'';
+  for(const row of (data||[])){const id=String(row.post_id||'');if(!id)continue;counts.set(id,(counts.get(id)||0)+1);if(me&&row.staff_name===me)mine.add(id);}
+  postLikes=counts;likedPostIds=mine;renderPosts();startAutoScroll();
+}
+async function togglePostLike(postId){
+  if(!sb||!postId)return;
+  const login=currentStaff||loadStaffLogin();
+  if(!login?.name){showAuth('いいねするにはログインしてください。');return;}
+  const id=String(postId),on=likedPostIds.has(id);
+  if(on){
+    const {error}=await sb.from('anniversary_post_likes').delete().eq('post_id',id).eq('staff_name',login.name);
+    if(error){console.warn(error);return;} likedPostIds.delete(id);postLikes.set(id,Math.max(0,likeCount(id)-1));
+  }else{
+    const {error}=await sb.from('anniversary_post_likes').insert({post_id:id,staff_name:login.name});
+    if(error&&error.code!=='23505'){console.warn(error);return;} likedPostIds.add(id);postLikes.set(id,likeCount(id)+1);
+  }
+  renderPosts();startAutoScroll();
+  const detail=document.querySelector(`[data-detail-like="${CSS.escape(id)}"]`);if(detail){detail.classList.toggle('liked',!on);detail.querySelector('span').textContent=!on?'♥':'♡';detail.querySelector('b').textContent=likeCount(id);}
+}
 function renderPosts(){
   const feed=document.getElementById('postFeed');
   const loopPosts=[...posts, ...posts];
-  feed.innerHTML=loopPosts.map((p,i)=>`<article class="post-card ${p.image?'photo-card':''}" data-post-index="${i%posts.length}" ${i>=posts.length?'aria-hidden="true"':''} tabindex="0" role="button"><div class="post-thumb ${p.alt?'alt':''}">${p.image?`<img src="${p.image}" alt="${escapeHtml(p.title)}"><div class="post-overlay"></div><div class="post-chip">${escapeHtml(p.tag||'HOMES')}</div>`:lineIcon(p.icon)}<div class="post-play">${lineIcon('play')}</div></div><div class="post-meta"><b>${escapeHtml(p.title)}</b><small>${escapeHtml(p.author)}</small></div></article>`).join('');
+  feed.innerHTML=loopPosts.map((p,i)=>`<article class="post-card ${p.image?'photo-card':''}" data-post-index="${i%posts.length}" ${i>=posts.length?'aria-hidden="true"':''} tabindex="0" role="button"><div class="post-thumb ${p.alt?'alt':''}">${p.image?`<img src="${p.image}" alt="${escapeHtml(p.title)}"><div class="post-overlay"></div><div class="post-chip">${escapeHtml(p.tag||'HOMES')}</div>`:lineIcon(p.icon)}<div class="post-play">${lineIcon('play')}</div></div><div class="post-meta"><div class="post-meta-copy"><b>${escapeHtml(p.title)}</b><small>${escapeHtml(p.author)}</small></div>${likeButtonHtml(p)}</div></article>`).join('');
+  feed.querySelectorAll('[data-like-post]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();togglePostLike(btn.dataset.likePost);}));
   feed.querySelectorAll('.post-card').forEach(card=>{
     const open=()=>openPostDetail(posts[Number(card.dataset.postIndex)]);
     card.addEventListener('click',open);
@@ -140,11 +175,12 @@ function openPostDetail(post){
   title.textContent=post.title||'無題';
   const bits=[post.author,post.campus,post.category].filter(Boolean);
   meta.textContent=bits.join(' ・ ')||'HOMES';
-  extra.innerHTML='';
+  extra.innerHTML=post.id?`<button type="button" class="post-detail-like ${likedPostIds.has(String(post.id))?'liked':''}" data-detail-like="${escapeHtml(post.id)}"><span>${likedPostIds.has(String(post.id))?'♥':'♡'}</span><b>${likeCount(post.id)}</b><em>いいね</em></button>`:'';
+  extra.querySelector?.('[data-detail-like]')?.addEventListener('click',()=>togglePostLike(post.id));
   if(video && post.driveWebViewUrl){
-    extra.innerHTML=`<a class="post-detail-drive" href="${post.driveWebViewUrl}" target="_blank" rel="noopener">Google Driveで原本を開く <span>→</span></a>`;
+    extra.insertAdjacentHTML('beforeend',`<a class="post-detail-drive" href="${post.driveWebViewUrl}" target="_blank" rel="noopener">Google Driveで原本を開く <span>→</span></a>`);
   }else if(post.driveWebViewUrl){
-    extra.innerHTML=`<a class="post-detail-drive" href="${post.driveWebViewUrl}" target="_blank" rel="noopener">原本を見る <span>→</span></a>`;
+    extra.insertAdjacentHTML('beforeend',`<a class="post-detail-drive" href="${post.driveWebViewUrl}" target="_blank" rel="noopener">原本を見る <span>→</span></a>`);
   }
   modal.classList.add('show');
   modal.setAttribute('aria-hidden','false');
@@ -283,6 +319,7 @@ async function loadSupabasePosts(){
   posts=[...remote,...posts.filter(x=>!x.id||!remoteIds.has(x.id))];
   renderPosts();
   startAutoScroll();
+  loadPostLikes();
 }
 
 function drawCover(ctx,source,sw,sh,dw=640,dh=420){
@@ -624,11 +661,12 @@ announcementDetailDialog?.addEventListener('click',e=>{if(e.target===announcemen
 announcementDetailDialog?.addEventListener('cancel',e=>{e.preventDefault();closeAnnouncementDetail();});
 startAnnouncementLiveUpdates();
 
+
+if(sb?.channel){try{sb.channel('homes20-likes').on('postgres_changes',{event:'*',schema:'public',table:'anniversary_post_likes'},()=>loadPostLikes()).subscribe();}catch(e){console.warn('like realtime unavailable',e);}}
 loadSupabasePosts();
 const STAFF_LOGIN_KEY='homes20StaffLogin';
 const STAFF_CODE=String(APP_CONFIG.staffCode||'2027');
 const LOGIN_DAYS=Number(APP_CONFIG.loginDays||180);
-let currentStaff=null;
 
 function initialsFromName(name){
   const clean=String(name||'H').trim();
@@ -685,6 +723,19 @@ function resetAppToTop(){
   }
 }
 
+function handleLaunchIntent(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('open')!=='upload')return;
+  setTimeout(()=>{
+    openRoute('upload');
+    const cat=document.getElementById('videoCategory');if(cat)cat.value='川瀬社長自転車の旅';
+    const title=document.getElementById('videoTitle');
+    const kind=q.get('kenji');
+    if(title&&!title.value)title.placeholder=kind==='message'?'川瀬社長からひとこと':kind==='photo'?'到着時の思い出':'自転車の旅の動画タイトル';
+    history.replaceState({},'',location.pathname);
+  },350);
+}
+
 function showApp(name){
   const authGate=document.getElementById('authGate');
   authGate.classList.remove('show');
@@ -695,7 +746,9 @@ function showApp(name){
   recordLoginBonus(name);
   trackAppOpen(name);
   loadActiveAnnouncement();
+  loadPostLikes();
   scheduleInstallOnboarding();
+  handleLaunchIntent();
 }
 
 function showAuth(message=''){
@@ -1017,14 +1070,19 @@ const RIDE_DEFAULT_STATE={
     '神戸校':'12:18'
   }
 };
+let rideRemoteState=null;
 let rideChannel=null;
 try{ rideChannel=new BroadcastChannel('homes20-ride'); }catch(e){}
 
 function getRideState(){
-  try{
-    const raw=localStorage.getItem(RIDE_STORAGE_KEY);
-    return raw?JSON.parse(raw):RIDE_DEFAULT_STATE;
-  }catch(e){ return RIDE_DEFAULT_STATE; }
+  if(rideRemoteState) return rideRemoteState;
+  try{const raw=localStorage.getItem(RIDE_STORAGE_KEY);return raw?JSON.parse(raw):RIDE_DEFAULT_STATE;}catch(e){return RIDE_DEFAULT_STATE;}
+}
+async function refreshRideState(){
+  if(!sb)return;
+  const {data,error}=await sb.from('anniversary_ride_state').select('current_campus,visited,updated_at').eq('id',1).maybeSingle();
+  if(error){console.warn('RIDE同期失敗',error);return;}
+  if(data){rideRemoteState={current:data.current_campus||'',visited:data.visited||{},updatedAt:data.updated_at||''};localStorage.setItem(RIDE_STORAGE_KEY,JSON.stringify(rideRemoteState));if(dialog?.open)applyRideState();}
 }
 
 function applyRideState(){
@@ -1067,9 +1125,11 @@ function initBike(){
     if(day2Route) day2Route.classList.toggle('map-hidden', day==='1');
     day2Stops.forEach(stop=>stop.style.display=(day==='1'?'none':'flex'));
   }));
+  refreshRideState();
   applyRideState();
 }
 
+if(sb?.channel){try{sb.channel('homes20-ride-state').on('postgres_changes',{event:'UPDATE',schema:'public',table:'anniversary_ride_state'},()=>refreshRideState()).subscribe();}catch(e){console.warn('ride realtime unavailable',e);}}
 window.addEventListener('storage',e=>{
   if(e.key===RIDE_STORAGE_KEY && dialog?.open) applyRideState();
 });

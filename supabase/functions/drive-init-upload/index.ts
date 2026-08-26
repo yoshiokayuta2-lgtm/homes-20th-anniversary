@@ -85,6 +85,11 @@ Deno.serve(async(req)=>{
         if(!r.ok)throw new Error('投稿一覧を取得できません。');
         return json({posts:await r.json()},200,headers);
       }
+      if(action==='admin-list-likes'){
+        const r=await rest('/rest/v1/anniversary_post_likes?select=post_id,staff_name,created_at&order=created_at.asc&limit=50000');
+        if(!r.ok)throw new Error('いいね集計を取得できません。');
+        return json({likes:await r.json()},200,headers);
+      }
       if(action==='admin-list-activity'){
         const [l,p,a,t,r]=await Promise.all([
           rest('/rest/v1/anniversary_login_days?select=staff_name,login_date,created_at&order=login_date.asc&limit=50000'),
@@ -93,8 +98,18 @@ Deno.serve(async(req)=>{
           rest('/rest/v1/anniversary_today_events?select=id,month,day,event_year,title,note,author_name,created_at&order=created_at.asc&limit=10000'),
           rest('/rest/v1/anniversary_staff_roster?select=id,staff_name,campus,active,created_at&order=staff_name.asc&limit=5000')
         ]);
-        if(!l.ok||!p.ok||!a.ok||!t.ok||!r.ok)throw new Error('参加状況を取得できません。v5.14 SQLが実行済みか確認してください。');
-        return json({loginDays:await l.json(),postAuthors:await p.json(),activityEvents:await a.json(),todayEvents:await t.json(),roster:await r.json()},200,headers);
+        const items:any[]=[['loginDays',l],['postAuthors',p],['activityEvents',a],['todayEvents',t],['roster',r]];
+        const result:any={warnings:[]};
+        for(const [key,res] of items){
+          if(res.ok){result[key]=await res.json();}
+          else{
+            const detail=await res.text().catch(()=> '');
+            result[key]=[];
+            result.warnings.push(`${key}: ${res.status}${detail?` ${detail.slice(0,300)}`:''}`);
+          }
+        }
+        if(result.warnings.length===items.length)throw new Error(`参加状況を取得できません：${result.warnings.join(' / ')}`);
+        return json(result,200,headers);
       }
       if(action==='admin-list-today-events'){
         const r=await rest('/rest/v1/anniversary_today_events?select=id,month,day,event_year,title,note,author_name,created_at&order=month.asc,day.asc,event_year.asc');
