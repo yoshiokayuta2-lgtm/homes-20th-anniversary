@@ -159,7 +159,7 @@ SQL追加はありません。
 - Service Worker cache: homes20-v5151
 
 
-## v5.15.2 KENJI RIDE NAVIGATION
+## v5.15.3 KENJI RIDE NAVIGATION
 - KENJI MODEでスマホGPSから現在地を取得
 - 次の校舎または任意の場所まで、ロードバイク向け実ルートを計算
 - 残り距離・到着目安・獲得標高・最大斜度目安を表示
