@@ -1,5 +1,2 @@
 [functions.drive-init-upload]
 verify_jwt = false
-
-[functions.ride-route]
-verify_jwt = false

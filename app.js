@@ -807,7 +807,7 @@ startOpeningSequence();
 
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=5154').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js?v=5148').catch(()=>{}));
 }
 
 // v5.13 - ホーム画面追加オンボーディング
