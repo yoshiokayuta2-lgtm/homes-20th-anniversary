@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KENJI MODE | HOMES 20th Anniversary</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{--navy:#07355f;--navy2:#0b4777;--navy3:#0d2f50;--red:#ef233c;--red2:#d9162f;--blue:#1686e8;--green:#21b36b;--ink:#0c3155;--muted:#6f8499;--line:#dce6ef;--bg:#eef4f8;--white:#fff;--shadow:0 12px 30px rgba(16,50,82,.12)}
 *{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:linear-gradient(#edf4f8,#f8fbfd);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}.app{max-width:780px;margin:auto;min-height:100vh;padding-bottom:42px}.topbar{height:64px;background:linear-gradient(90deg,#123f69,#082e52);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 8px 24px rgba(7,35,61,.18)}.brand{display:flex;align-items:baseline;gap:16px}.brand strong{font-size:26px;font-style:italic;letter-spacing:.02em}.brand span{font-size:11px;letter-spacing:.08em;opacity:.9}.back{color:#fff;text-decoration:none;font-size:12px;display:flex;align-items:center;gap:8px}.back b{font-size:24px;font-weight:400;line-height:1}
@@ -13,7 +14,18 @@
 .progress-card{margin-top:16px;background:#fff;border:1px solid #e0e9f0;border-radius:22px;padding:20px 22px;box-shadow:0 8px 24px rgba(17,55,88,.07)}.progress-line{display:grid;grid-template-columns:repeat(5,1fr);position:relative}.progress-line:before{content:'';position:absolute;left:8%;right:8%;top:17px;height:4px;background:#dbe3ea;border-radius:99px}.progress-line:after{content:'';position:absolute;left:8%;width:42%;top:17px;height:4px;background:var(--blue);border-radius:99px}.step{position:relative;z-index:2;text-align:center;min-width:0}.pin{width:34px;height:34px;border-radius:50%;margin:auto;display:grid;place-items:center;background:#c8d0d7;color:white;border:3px solid white;box-shadow:0 0 0 1px #d6e0e8;font-size:14px;font-weight:900}.step.done .pin{background:var(--blue)}.step.current .pin{background:var(--red);transform:scale(1.12);box-shadow:0 0 0 6px rgba(239,35,60,.12)}.step b{display:block;font-size:11px;margin-top:8px;white-space:nowrap}.step small{display:block;font-size:9px;color:var(--muted);margin-top:3px}.step.current small{color:var(--red);font-weight:800}
 .section-head{display:flex;align-items:center;justify-content:space-between;margin:24px 4px 11px}.section-head h2{font-size:19px;margin:0}.section-head h2:before{content:'●';color:var(--navy);margin-right:9px;font-size:14px}.map-btn{border:1px solid #cbd9e5;background:#fff;border-radius:99px;padding:9px 13px;font-size:11px;font-weight:800;color:var(--navy);cursor:pointer}.route-list{display:grid;gap:10px}.route-item{display:grid;grid-template-columns:36px 68px minmax(0,1fr) 120px 24px;gap:13px;align-items:center;background:#fff;border:1px solid #e1e9ef;border-radius:18px;padding:12px 14px;box-shadow:0 8px 18px rgba(10,50,85,.05)}.route-state{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#fff;border:3px solid #bbc7d1;color:#fff;font-weight:900;font-size:12px}.route-item.done .route-state{background:var(--blue);border-color:var(--blue)}.route-item.current .route-state{background:var(--red);border-color:var(--red)}.mini-thumb{position:relative;width:68px;height:52px;border-radius:14px;background:linear-gradient(145deg,#e2eef5,#a6c8df);display:grid;place-items:center;color:#0e4778;font-weight:900;overflow:hidden;border:1px solid #d7e3ed;box-shadow:0 10px 18px rgba(10,50,85,.09)}.mini-thumb:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(8,38,67,.12))}.route-name{min-width:0}.route-name b{font-size:14px}.route-name small{display:block;font-size:9px;color:var(--muted);margin-top:4px}.route-time{font-size:11px;color:var(--muted)}.route-action{border:0;border-radius:99px;padding:9px 12px;background:#e3e9ee;color:#264b6a;font-size:10px;font-weight:800}.route-item.current .route-action{background:#ffe3e7;color:var(--red)}.route-item.future .route-action.primary{background:var(--red);color:#fff;cursor:pointer;box-shadow:0 8px 14px rgba(239,35,60,.16)}.chev{color:#8fa1af;font-size:20px}
 .record{margin-top:24px}.record h2{font-size:18px;margin:0 0 12px}.record-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.record-btn{min-height:88px;border-radius:16px;background:#fff;border:1px solid #dce6ee;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;color:var(--navy);font-weight:800;cursor:pointer}.record-btn .ico{font-size:24px}.record-btn small{font-size:9px;color:var(--muted);font-weight:500}.record-btn.photo{border-color:#ff9aa6;background:#fff5f6;color:#e52b42}.record-btn.video{border-color:#85b8ff;background:#f4f8ff;color:#1767c5}.record-btn.msg{border-color:#88d9aa;background:#f4fff8;color:#07924b}.toast{position:sticky;bottom:12px;margin:16px auto 0;max-width:420px;background:#071f36;color:#fff;border-radius:14px;padding:12px 16px;font-size:11px;text-align:center;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:none}
-@media(max-width:640px){.topbar{padding:0 14px}.brand strong{font-size:21px}.brand span{font-size:9px}.hero{min-height:144px;padding:22px 18px 16px}.hero-title{font-size:39px}.hero-sub{font-size:11px}.bike{right:10px;top:28px;width:145px;max-width:35%}.content{padding-left:10px;padding-right:10px}.status-grid{grid-template-columns:1fr 1fr}.status-item:nth-child(3){grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}.next-main{grid-template-columns:1fr}.next-meta{border-left:0;border-top:1px solid rgba(255,255,255,.25);padding:12px 0 0}.arrive-main{width:100%}.progress-card{overflow-x:auto}.progress-line{min-width:520px}.route-item{grid-template-columns:32px 54px minmax(0,1fr) 80px 18px;gap:8px;padding:9px}.mini-thumb{width:54px;height:44px}.route-time{font-size:9px}.route-action{padding:8px 7px}.record-grid{grid-template-columns:1fr}.record-btn{min-height:70px}.campus-thumb{width:76px;height:64px}.next-name{font-size:22px}}
+
+.ride-cockpit{margin-top:18px;background:#071f36;color:#fff;border-radius:24px;overflow:hidden;box-shadow:0 18px 38px rgba(5,31,54,.22)}
+.ride-cockpit-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+.ride-cockpit-title small{display:block;font-size:9px;letter-spacing:.15em;opacity:.62;font-weight:800}.ride-cockpit-title b{display:block;font-size:18px;margin-top:2px}
+.gps-state{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.09);font-size:10px;font-weight:800}.gps-state i{width:8px;height:8px;border-radius:50%;background:#f2b84b}.gps-state.live i{background:#2bd67b}.gps-state.error i{background:#ff5267}
+.ride-metrics{display:grid;grid-template-columns:1.3fr repeat(3,1fr);border-bottom:1px solid rgba(255,255,255,.12)}
+.ride-metric{padding:16px 14px;border-right:1px solid rgba(255,255,255,.1);min-width:0}.ride-metric:last-child{border-right:0}.ride-metric span{display:block;font-size:9px;opacity:.62;font-weight:700}.ride-metric b{display:block;font-size:24px;margin-top:3px;white-space:nowrap}.ride-metric.speed b{font-size:42px;line-height:1}.ride-metric b small{font-size:10px;font-weight:600;opacity:.7}
+.ride-targetbar{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#0c2d49}.ride-targetbar label{font-size:10px;font-weight:800;opacity:.7;white-space:nowrap}.ride-targetbar select{min-width:0;flex:1;border:1px solid rgba(255,255,255,.22);background:#123a5d;color:#fff;border-radius:12px;padding:10px 12px;font:inherit;font-size:12px;font-weight:800}.ride-targetbar button{border:0;border-radius:12px;padding:10px 12px;background:#fff;color:#07355f;font-size:11px;font-weight:900;cursor:pointer}
+.ride-map-wrap{position:relative;height:320px;background:#dce7ef}.ride-map{height:100%;width:100%;z-index:1}.ride-map-overlay{position:absolute;z-index:500;left:10px;right:10px;bottom:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}.ride-map-overlay button{pointer-events:auto;border:0;border-radius:999px;padding:10px 13px;background:rgba(7,31,54,.88);color:#fff;font-size:10px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,.2);backdrop-filter:blur(8px)}
+.ride-controls{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:8px;padding:12px;background:#0a2944}.ride-controls button{min-height:48px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-weight:900;font-size:12px}.ride-controls .primary{background:var(--red);border-color:var(--red)}.ride-controls button:disabled{opacity:.45}.ride-note{padding:0 14px 13px;font-size:9px;opacity:.58}
+.destination-toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:3000;background:#071f36;color:#fff;border-radius:14px;padding:11px 14px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:11px;font-weight:800;opacity:0;pointer-events:none;transition:.2s}.destination-toast.show{opacity:1}
+@media(max-width:640px){.ride-metrics{grid-template-columns:1.25fr 1fr}.ride-metric:nth-child(2){border-right:0}.ride-metric:nth-child(3),.ride-metric:nth-child(4){border-top:1px solid rgba(255,255,255,.1)}.ride-map-wrap{height:300px}.ride-targetbar{flex-wrap:wrap}.ride-targetbar label{width:100%}.ride-controls{grid-template-columns:1fr 1fr}.ride-controls .primary{grid-column:1/-1}.topbar{padding:0 14px}.brand strong{font-size:21px}.brand span{font-size:9px}.hero{min-height:144px;padding:22px 18px 16px}.hero-title{font-size:39px}.hero-sub{font-size:11px}.bike{right:10px;top:28px;width:145px;max-width:35%}.content{padding-left:10px;padding-right:10px}.status-grid{grid-template-columns:1fr 1fr}.status-item:nth-child(3){grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}.next-main{grid-template-columns:1fr}.next-meta{border-left:0;border-top:1px solid rgba(255,255,255,.25);padding:12px 0 0}.arrive-main{width:100%}.progress-card{overflow-x:auto}.progress-line{min-width:520px}.route-item{grid-template-columns:32px 54px minmax(0,1fr) 80px 18px;gap:8px;padding:9px}.mini-thumb{width:54px;height:44px}.route-time{font-size:9px}.route-action{padding:8px 7px}.record-grid{grid-template-columns:1fr}.record-btn{min-height:70px}.campus-thumb{width:76px;height:64px}.next-name{font-size:22px}}
 
     .demo-reset-btn{
       border:1px solid rgba(255,255,255,.28);
@@ -91,6 +103,34 @@
       </article>
     </section>
 
+    <section class="ride-cockpit" aria-label="RIDE 走行画面">
+      <div class="ride-cockpit-head">
+        <div class="ride-cockpit-title"><small>KENJI RIDE MODE 2.0</small><b>走行画面</b></div>
+        <div class="gps-state" id="gpsState"><i></i><span>GPS待機中</span></div>
+      </div>
+      <div class="ride-metrics">
+        <div class="ride-metric speed"><span>現在速度</span><b id="rideSpeed">0.0 <small>km/h</small></b></div>
+        <div class="ride-metric"><span>走行距離</span><b id="rideDistance">0.00 <small>km</small></b></div>
+        <div class="ride-metric"><span>経過時間</span><b id="rideElapsed">00:00</b></div>
+        <div class="ride-metric"><span>目的地まで</span><b id="rideRemaining">-- <small>km</small></b></div>
+      </div>
+      <div class="ride-targetbar">
+        <label for="rideDestination">目的地</label>
+        <select id="rideDestination" aria-label="目的地を変更"></select>
+        <button type="button" id="applyDestination">目的地変更</button>
+      </div>
+      <div class="ride-map-wrap">
+        <div id="rideMap" class="ride-map" aria-label="現在地と目的地の地図"></div>
+        <div class="ride-map-overlay"><button type="button" id="recenterMap">◎ 現在地へ戻る</button><button type="button" id="openNav">↗ ナビを開く</button></div>
+      </div>
+      <div class="ride-controls">
+        <button type="button" class="primary" id="rideToggle">▶ RIDE開始</button>
+        <button type="button" id="ridePause" disabled>Ⅱ 一時停止</button>
+        <button type="button" id="rideFinish" disabled>■ 終了</button>
+      </div>
+      <div class="ride-note">地図を手で動かしても、約12秒後に自動追従へ戻ります。「現在地へ戻る」ならすぐ復帰します。目的地までの距離はGPSからの直線距離です。</div>
+    </section>
+
     <section class="next-card">
       <div class="eyebrow">次の目的地</div>
       <div class="next-main">
@@ -105,7 +145,7 @@
 
     <section class="progress-card"><div class="progress-line" id="progressLine"></div></section>
 
-    <div class="section-head"><h2>本日のルート</h2><button class="map-btn" type="button" id="mapBtn">▱ マップを開く ↗</button></div>
+    <div class="section-head"><h2>本日のルート</h2><button class="map-btn" type="button" id="mapBtn">▱ ナビを開く ↗</button></div>
     <section class="route-list" id="routeList"></section>
 
     <section class="record">
@@ -122,14 +162,15 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js?v=58"></script>
 <script src="history-data.js?v=58"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const KEY='homes20RideState';
 const campuses=[
-  {name:'岐阜本部校',day:1,time:'09:15',place:'岐阜市橋本町',displayPlace:'岐阜県岐阜市',photo:'assets/campuses/gifu-hombu.png'},
-  {name:'岐南校',day:1,time:'12:40',place:'羽島郡岐南町',displayPlace:'岐阜県羽島郡岐南町',photo:'assets/campuses/ginan.png'},
-  {name:'神戸校',day:2,time:'14:32',place:'安八郡神戸町',displayPlace:'岐阜県安八郡神戸町',photo:'assets/campuses/goudo.png'},
-  {name:'大垣本部校',day:2,time:'',place:'大垣市',displayPlace:'岐阜県大垣市',photo:'assets/campuses/ogaki-hombu.png'},
-  {name:'穂積校',day:2,time:'',place:'瑞穂市',displayPlace:'岐阜県瑞穂市',photo:'assets/campuses/hozumi.png'}
+  {name:'岐阜本部校',day:1,time:'09:15',place:'岐阜市橋本町',displayPlace:'岐阜県岐阜市',address:'岐阜県岐阜市橋本町2-52 岐阜シティ・タワー43',photo:'assets/campuses/gifu-hombu.png'},
+  {name:'岐南校',day:1,time:'12:40',place:'羽島郡岐南町',displayPlace:'岐阜県羽島郡岐南町',address:'岐阜県羽島郡岐南町三宅4-109-1',photo:'assets/campuses/ginan.png'},
+  {name:'神戸校',day:2,time:'14:32',place:'安八郡神戸町',displayPlace:'岐阜県安八郡神戸町',address:'岐阜県安八郡神戸町 HOMES個別指導学院 神戸校',photo:'assets/campuses/goudo.png'},
+  {name:'大垣本部校',day:2,time:'',place:'大垣市',displayPlace:'岐阜県大垣市',address:'岐阜県大垣市林町5丁目 光和ビル',photo:'assets/campuses/ogaki-hombu.png'},
+  {name:'穂積校',day:2,time:'',place:'瑞穂市',displayPlace:'岐阜県瑞穂市',address:'岐阜県瑞穂市 HOMES個別指導学院 穂積校',photo:'assets/campuses/hozumi.png'}
 ];
 const defaultState={current:'神戸校',visited:{'岐阜本部校':'09:15','岐南校':'12:40','神戸校':'14:32'},updatedAt:'14:32'};
 let channel=null;try{channel=new BroadcastChannel('homes20-ride')}catch(e){}
@@ -161,7 +202,7 @@ function render(){
   document.querySelectorAll('[data-campus]').forEach(btn=>{if(!btn.disabled)btn.addEventListener('click',()=>arrive(btn.dataset.campus))});
 }
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2200)}
-document.getElementById('mapBtn').addEventListener('click',()=>{const state=getState();const next=nextUnvisited(state);const q=encodeURIComponent(`${next.name} ${next.place}`);window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank','noopener');});
+document.getElementById('mapBtn').addEventListener('click',()=>{const state=getState();const next=nextUnvisited(state);const q=encodeURIComponent(`${next.name} ${next.place}`);window.open(`https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=bicycling`,'_blank','noopener');});
 document.querySelectorAll('[data-record]').forEach(btn=>btn.addEventListener('click',()=>{const kind=btn.dataset.record==='写真'?'photo':btn.dataset.record==='動画'?'video':'message';location.href=`index.html?open=upload&kenji=${kind}`;}));
 if(channel)channel.onmessage=()=>render();
 window.addEventListener('storage',e=>{if(e.key===KEY)render()});
@@ -169,6 +210,32 @@ render();
 
 const ADMIN_SB_CONFIG=window.HOMES_SUPABASE||{};
 const adminSb=(ADMIN_SB_CONFIG.url&&ADMIN_SB_CONFIG.publishableKey&&window.supabase?.createClient)?window.supabase.createClient(ADMIN_SB_CONFIG.url,ADMIN_SB_CONFIG.publishableKey):null;
+
+// KENJI RIDE MODE 2.0 ------------------------------------------------------
+const RIDE_RUNTIME_KEY='homes20RideRuntimeV2';
+let rideMap=null,userMarker=null,destMarker=null,routeLine=null,watchId=null,rideTimer=null;
+let lastPosition=null,lastPositionAt=0,followMode=true,followResumeTimer=null,destinationLatLng=null;
+let rideRuntime=(()=>{try{return JSON.parse(localStorage.getItem(RIDE_RUNTIME_KEY))||{active:false,paused:false,distanceKm:0,elapsedSec:0,destination:''}}catch(e){return {active:false,paused:false,distanceKm:0,elapsedSec:0,destination:''}}})();
+function saveRideRuntime(){localStorage.setItem(RIDE_RUNTIME_KEY,JSON.stringify(rideRuntime));}
+function haversine(a,b){const R=6371,toRad=x=>x*Math.PI/180,dLat=toRad(b.lat-a.lat),dLon=toRad(b.lng-a.lng),la1=toRad(a.lat),la2=toRad(b.lat);const h=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function fmtElapsed(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h?`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;}
+function setGpsState(text,mode=''){const el=document.getElementById('gpsState');if(!el)return;el.classList.remove('live','error');if(mode)el.classList.add(mode);el.querySelector('span').textContent=text;}
+function renderRideMetrics(speedKmh){document.getElementById('rideSpeed').innerHTML=`${Number(speedKmh||0).toFixed(1)} <small>km/h</small>`;document.getElementById('rideDistance').innerHTML=`${Number(rideRuntime.distanceKm||0).toFixed(2)} <small>km</small>`;document.getElementById('rideElapsed').textContent=fmtElapsed(rideRuntime.elapsedSec||0);const toggle=document.getElementById('rideToggle'),pause=document.getElementById('ridePause'),finish=document.getElementById('rideFinish');toggle.textContent=rideRuntime.active?(rideRuntime.paused?'▶ 再開':'● 走行中'):'▶ RIDE開始';toggle.disabled=rideRuntime.active&&!rideRuntime.paused;pause.disabled=!rideRuntime.active||rideRuntime.paused;finish.disabled=!rideRuntime.active;}
+function initRideMap(){if(rideMap||!window.L)return;rideMap=L.map('rideMap',{zoomControl:false}).setView([35.42,136.72],11);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(rideMap);L.control.zoom({position:'topright'}).addTo(rideMap);rideMap.on('dragstart zoomstart',()=>{followMode=false;clearTimeout(followResumeTimer);followResumeTimer=setTimeout(()=>{followMode=true;if(lastPosition)rideMap.setView([lastPosition.lat,lastPosition.lng],16,{animate:true});},12000);});setTimeout(()=>rideMap.invalidateSize(),100);}
+async function geocodeCampus(campus){if(!campus)return null;const cacheKey='homes20Geo:'+campus.name;try{const cached=JSON.parse(localStorage.getItem(cacheKey));if(cached?.lat&&cached?.lng)return cached;}catch(e){}try{const q=encodeURIComponent(campus.address||`${campus.name} ${campus.place}`);const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=jp&q=${q}`,{headers:{'Accept-Language':'ja'}});const rows=await r.json();if(rows?.[0]){const ll={lat:Number(rows[0].lat),lng:Number(rows[0].lon)};localStorage.setItem(cacheKey,JSON.stringify(ll));return ll;}}catch(e){console.warn('目的地座標を取得できません',e);}return null;}
+function currentDestinationCampus(){return campuses.find(c=>c.name===rideRuntime.destination)||nextUnvisited(getState());}
+async function applyRideDestination(name,announce=true){const campus=campuses.find(c=>c.name===name)||nextUnvisited(getState());rideRuntime.destination=campus.name;saveRideRuntime();const select=document.getElementById('rideDestination');if(select)select.value=campus.name;destinationLatLng=await geocodeCampus(campus);initRideMap();if(destMarker){rideMap.removeLayer(destMarker);destMarker=null;}if(destinationLatLng){destMarker=L.marker([destinationLatLng.lat,destinationLatLng.lng]).addTo(rideMap).bindPopup(`<b>${escapeHtml(campus.name)}</b><br>${escapeHtml(campus.displayPlace||campus.place)}`);if(lastPosition)updateRideMap(lastPosition);else rideMap.setView([destinationLatLng.lat,destinationLatLng.lng],14);}document.querySelector('.ride-cockpit-title b').textContent=`走行画面｜${campus.name}へ`;if(announce)toast(`目的地を ${campus.name} に変更しました`);}
+function updateRideMap(pos){initRideMap();const ll=[pos.lat,pos.lng];if(!userMarker)userMarker=L.circleMarker(ll,{radius:9,weight:4,color:'#fff',fillColor:'#1686e8',fillOpacity:1}).addTo(rideMap).bindPopup('現在地');else userMarker.setLatLng(ll);if(routeLine){rideMap.removeLayer(routeLine);routeLine=null;}if(destinationLatLng){routeLine=L.polyline([ll,[destinationLatLng.lat,destinationLatLng.lng]],{weight:4,opacity:.72,dashArray:'8 8'}).addTo(rideMap);const rem=haversine(pos,destinationLatLng);document.getElementById('rideRemaining').innerHTML=`${rem.toFixed(1)} <small>km</small>`;}if(followMode)rideMap.setView(ll,16,{animate:true});}
+function onRidePosition(position){const c=position.coords,now=Date.now(),pos={lat:c.latitude,lng:c.longitude};let speedKmh=Number.isFinite(c.speed)&&c.speed>=0?c.speed*3.6:0;if(lastPosition&&lastPositionAt){const d=haversine(lastPosition,pos),dt=(now-lastPositionAt)/3600000;if(!speedKmh&&dt>0&&d<1)speedKmh=d/dt;if(rideRuntime.active&&!rideRuntime.paused&&d<0.5&&d>0.002)rideRuntime.distanceKm=(rideRuntime.distanceKm||0)+d;}lastPosition=pos;lastPositionAt=now;saveRideRuntime();setGpsState(`GPS取得中 ±${Math.round(c.accuracy||0)}m`,'live');renderRideMetrics(speedKmh);updateRideMap(pos);}
+function onRideGeoError(err){setGpsState(err.code===1?'位置情報を許可してください':'GPSを取得できません','error');}
+function ensureGeolocation(){if(watchId!==null)return;if(!navigator.geolocation){setGpsState('GPS非対応','error');return;}setGpsState('GPSを探しています');watchId=navigator.geolocation.watchPosition(onRidePosition,onRideGeoError,{enableHighAccuracy:true,maximumAge:1500,timeout:12000});}
+function startRideTimer(){if(rideTimer)return;rideTimer=setInterval(()=>{if(rideRuntime.active&&!rideRuntime.paused){rideRuntime.elapsedSec=(rideRuntime.elapsedSec||0)+1;saveRideRuntime();renderRideMetrics(Number(document.getElementById('rideSpeed').textContent)||0);}},1000);}
+function startRide(){rideRuntime.active=true;rideRuntime.paused=false;saveRideRuntime();ensureGeolocation();startRideTimer();renderRideMetrics(0);toast('RIDEを開始しました');}
+function pauseRide(){rideRuntime.paused=true;saveRideRuntime();renderRideMetrics(0);toast('RIDEを一時停止しました');}
+function finishRide(){if(!confirm('RIDEを終了しますか？ 走行距離と時間はこの端末に残します。'))return;rideRuntime.active=false;rideRuntime.paused=false;saveRideRuntime();renderRideMetrics(0);toast('RIDEを終了しました');}
+function setupRideCockpit(){initRideMap();const sel=document.getElementById('rideDestination');sel.innerHTML=campuses.map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');const initial=rideRuntime.destination||nextUnvisited(getState()).name;applyRideDestination(initial,false);document.getElementById('applyDestination').addEventListener('click',()=>applyRideDestination(sel.value));document.getElementById('rideToggle').addEventListener('click',()=>{if(!rideRuntime.active||rideRuntime.paused)startRide();});document.getElementById('ridePause').addEventListener('click',pauseRide);document.getElementById('rideFinish').addEventListener('click',finishRide);document.getElementById('recenterMap').addEventListener('click',()=>{followMode=true;clearTimeout(followResumeTimer);if(lastPosition)rideMap.setView([lastPosition.lat,lastPosition.lng],16,{animate:true});else ensureGeolocation();});document.getElementById('openNav').addEventListener('click',()=>{const c=currentDestinationCampus(),q=encodeURIComponent(c.address||`${c.name} ${c.place}`);window.open(`https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=bicycling`,'_blank','noopener');});renderRideMetrics(0);ensureGeolocation();startRideTimer();}
+setupRideCockpit();
+
 async function loadRemoteRideState(){if(!adminSb)return;const {data,error}=await adminSb.from('anniversary_ride_state').select('current_campus,visited,updated_at').eq('id',1).maybeSingle();if(error){console.warn('RIDE状態取得失敗',error);return;}if(data){const state={current:data.current_campus||'',visited:data.visited||{},updatedAt:data.updated_at||''};localStorage.setItem(KEY,JSON.stringify(state));render();}}
 if(adminSb?.channel){try{adminSb.channel('kenji-ride-state').on('postgres_changes',{event:'UPDATE',schema:'public',table:'anniversary_ride_state'},()=>loadRemoteRideState()).subscribe();}catch(e){console.warn(e);}}
 loadRemoteRideState();
@@ -247,6 +314,7 @@ loadKenjiToday(); loadActivityDashboard(); setInterval(loadActivityDashboard,600
         localStorage.removeItem('homes_ride_state');
         localStorage.removeItem('kenjiRideState');
         localStorage.removeItem('rideState');
+        localStorage.removeItem(RIDE_RUNTIME_KEY);
         if(adminSb){adminSb.from('anniversary_ride_state').update({current_campus:defaultState.current,visited:defaultState.visited,updated_at:new Date().toISOString()}).eq('id',1).then(()=>location.reload());}
         else location.reload();
       });
